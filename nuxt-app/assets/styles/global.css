@@ -1,0 +1,31 @@
+:root {
+    --white-1: #FFFFFF;
+    --white-2: #F4F4F4;
+    --green-1: #7AE88D;
+    --green-2: #49DD62;
+    --black-1: #000000;
+    --grey-1: #323232;
+    --grey-2: #888888;
+    --grey-3: #414141;
+    --text-1: var(--white-1);
+    --text-2: var(--black-1);
+    --text-3: var(--grey-2);
+}
+
+body {
+    margin: 0;
+    scroll-behavior: smooth;
+    min-width: 250px;
+    min-height: 600px;
+    font-family: Roboto;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3 {
+    margin: 0;
+}
