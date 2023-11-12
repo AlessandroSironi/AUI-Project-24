@@ -2,7 +2,7 @@
 
 <template>
     <div>
-        <Header title="index" />
+        <Header title="EcoMate" />
         <div class="main">
             <p>Chat Page</p>
         </div>
