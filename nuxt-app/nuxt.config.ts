@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-    modules: ['@nuxtjs/google-fonts', 'nuxt-icon'],
+    modules: ['@nuxtjs/google-fonts', 'nuxt-icon', '@pinia/nuxt'],
     googleFonts: {
         families: {
             Roboto: [100, 200, 300, 400, 500, 600, 700, 800],
