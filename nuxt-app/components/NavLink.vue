@@ -28,7 +28,8 @@ const { name, url, icon } = defineProps<Props>();
     font-weight: 500;
 }
 
-.link:hover {
+.link:hover,
+.router-link-active {
     background-color: var(--grey-3);
     border-radius: 1rem;
 

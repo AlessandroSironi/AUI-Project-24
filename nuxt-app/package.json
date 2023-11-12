@@ -16,5 +16,9 @@
         "nuxt-icon": "^0.6.2",
         "vue": "^3.3.7",
         "vue-router": "^4.2.5"
+    },
+    "dependencies": {
+        "@pinia/nuxt": "^0.5.1",
+        "pinia": "^2.1.7"
     }
 }

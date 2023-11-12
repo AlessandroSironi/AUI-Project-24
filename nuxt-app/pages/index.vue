@@ -6,10 +6,14 @@ const res = useFetch(config.public.baseURL + '/api/testRoute');
 </script>
 
 <template>
+    <Header title="index" />
     <div class="main">
-        <h1>AUI-project-2024</h1>
         <p>Message: {{ res.data.value }}</p>
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.main {
+    padding: 1rem;
+}
+</style>
