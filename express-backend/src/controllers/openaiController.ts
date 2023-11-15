@@ -1,7 +1,9 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+//const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+
+import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: true }));
@@ -11,7 +13,7 @@ const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 // parse application/json
 //app.use(bodyParser.json())
 
-const key = env.OPENAI_KEY;
+const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
 //const endpoint = "https://aui-openai.openai.azure.com/openai/deployments/ChatGPT35/chat/completions?api-version=2023-07-01-preview"
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
@@ -62,9 +64,9 @@ const getAnswer = async (prompt:string) => {
   });
 
   try {
-    const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 }, { apiVersion: version });
+    const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 }/* , { apiVersion: version } */);
     for (const choice of result.choices) {
-      console.log(`Chatbot: ${choice.message.content}`);
+      if (choice.message) console.log(`Chatbot: ${choice.message.content}`);
     }
     return result;
   } catch (error) {
