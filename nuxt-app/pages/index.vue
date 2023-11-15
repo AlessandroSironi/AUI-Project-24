@@ -2,7 +2,8 @@
 // simple request to the backend just for testing
 const config = useRuntimeConfig();
 
-const res = useFetch(config.public.baseURL + '/api/testRoute');
+const res = useFetch(config.public.baseURL + '/');
+console.log(res);
 </script>
 
 <template>
