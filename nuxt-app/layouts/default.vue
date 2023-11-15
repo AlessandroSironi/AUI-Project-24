@@ -11,8 +11,8 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
 <template>
     <div class="app-container">
         <Navbar :class="isNavbarVisible ? 'navbar-visible' : 'navbar-invisible'" />
-        <div class="main-content" :class="isNavbarVisible ? 'main-content-invisible' : ''">
-            <span>
+        <div class="main-content" :class="isNavbarVisible ? 'main-content-invisible' : 'main-content-visible'">
+            <span class="main-content-wrapper">
                 <slot />
             </span>
         </div>
@@ -29,6 +29,13 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     background-color: var(--white-2);
     flex-grow: 1;
     width: min(100%, 900px);
+    display: flex;
+}
+
+.main-content-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 @media only screen and (width < 700px) {
@@ -42,10 +49,17 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
         flex-grow: 1;
     }
 
+    .main-content-visible {
+        width: min(100%, 900px);
+        display: flex;
+        transition: all 0.3s ease-in;
+    }
+
     .main-content-invisible {
         width: 0;
         display: flex;
         overflow: hidden;
+        transition: all 0.3s ease-out;
     }
 }
 </style>
