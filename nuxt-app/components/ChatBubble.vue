@@ -1,18 +1,57 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+interface Props {
+    isFromUser: boolean;
+    messageContent: string;
+    date: string;
+}
+
+const { isFromUser, messageContent, date } = defineProps<Props>();
+</script>
 
 <template>
-    <div class="bubble-container">
-        <p class="message-content"> Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempore commodi vero odio suscipit perferendis laudantium assumenda? Aut vitae ducimus perferendis temporibus, facilis obcaecati aliquam quasi voluptatem ea dolor ratione quis? </p>
+    <div class="bubble-container" :class="isFromUser ? 'flex-start' : 'flex-end'">
+        <div class="bubble" :class="isFromUser ? 'bubble-style-user' : 'bubble-style-system'">
+            <p class="message-content"> {{ messageContent }} </p>
+            <span class="date-container" :class="isFromUser ? 'date-style-system' && 'flex-start' : 'date-style-user' && 'flex-end'">{{ date.toString() }}</span>
+        </div>
     </div>
 </template>
 
 <style scoped>
 .bubble-container {
-    background-color: var(--grey-1);
-    color: var(--white-1);
-    border-radius: 1.2rem 1.5625rem 1.5625rem 0rem;
-    padding: 1rem;
+    width: 100%;
+    display: flex;
+}
+
+.flex-start {
+    justify-content: flex-start;
+}
+
+.flex-start {
+    justify-content: flex-end;
+}
+.bubble {
+    padding: 1.2rem;
     width: 20rem;
-    width: min(90%, 600px);
+    width: min(95%, 800px);
+}
+
+.bubble-style-system {
+    background-color: var(--grey-3);
+    color: var(--white-2);
+    border-radius: 1.2rem 1.2rem 1.2rem 0rem;
+}
+
+.bubble-style-user {
+    background-color: var(--green-2);
+    color: var(--black-1);
+    border-radius: 1.2rem 1.2rem 0rem 1.2rem;
+}
+
+.date-container {
+    opacity: 0.4;
+    display: flex;
+    width: 100%;
+    font-size: 0.9rem;
 }
 </style>
