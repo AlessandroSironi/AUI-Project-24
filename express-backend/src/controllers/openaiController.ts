@@ -1,23 +1,11 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
-
-import {createClient} from '@supabase/supabase-js'
-
-//const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
-
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
-//app.use(express.json());
-//app.use(express.urlencoded({ extended: true }));
-
-//app.use(bodyParser.urlencoded({ extended: true }))
-
-// parse application/json
-//app.use(bodyParser.json())
+import "../types/schema";
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
-//const endpoint = "https://aui-openai.openai.azure.com/openai/deployments/ChatGPT35/chat/completions?api-version=2023-07-01-preview"
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
 const deploymentName = "ChatGPT35";
 const version = "2023-07-01-preview";
@@ -31,7 +19,7 @@ const lightuserQuestion = "Provide me some examples on how to save energy.";
 const poweruserQuestion = "I want to create an IFTTT routine. Ask me what for and then explain it to me. Then generate complete IFTTT JSON code that sets up the routine. Before the JSON, please write CODE .";
 
 //TODO: Add a database to store chat history
-const chat = [
+let chat = [
   prompt,
   {
     "role":"user",
@@ -101,9 +89,10 @@ const openaiController = async (req: Request, res: Response) => { //TODO: async?
 
     const result = await getAnswer(request);
     console.log(`Result: ${result}`);
-
-    res.send(result);
-
+    /* const result2 = await retrieveChatHistory("6db8a464-9c27-423e-b20e-f46197029da0");
+    res.send(result2);
+    console.log("Result2: ", result2);
+ */
   } catch (error) {
     console.error("Error: ", error);
   }   
