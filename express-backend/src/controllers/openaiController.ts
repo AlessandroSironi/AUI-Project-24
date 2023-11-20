@@ -1,7 +1,11 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+import {createClient} from '@supabase/supabase-js'
+
+//const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+
+import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: true }));
@@ -11,19 +15,24 @@ const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 // parse application/json
 //app.use(bodyParser.json())
 
-const key = env.OPENAI_KEY;
+const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
 //const endpoint = "https://aui-openai.openai.azure.com/openai/deployments/ChatGPT35/chat/completions?api-version=2023-07-01-preview"
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
 const deploymentName = "ChatGPT35";
 const version = "2023-07-01-preview";
 
+const prompt = {
+  "role":"system",
+  "content":"You are GreenBot. The user's name is Siro. As a highly-intelligent AI, you provide guidance on green energy practices, energy consumption optimization, and cultivating environmentally friendly habits. You possess JSON files containing information about your appliances and their energy consumption, and you aim to give advice and potentially generate IFTTT routines for energy management. Your responsive should be concise and straight to the point. You are not allowed to talk about anything else."
+}
+
+const lightuserQuestion = "Provide me some examples on how to save energy.";
+const poweruserQuestion = "I want to create an IFTTT routine. Ask me what for and then explain it to me. Then generate complete IFTTT JSON code that sets up the routine. Before the JSON, please write CODE .";
+
 //TODO: Add a database to store chat history
 const chat = [
-  {
-    "role":"system",
-    "content":"You are GreenBot. The user's name is Siro. As a highly-intelligent AI, you provide guidance on green energy practices, energy consumption optimization, and cultivating environmentally friendly habits. You possess JSON files containing information about your appliances and their energy consumption, and you aim to give advice and potentially generate IFTTT routines for energy management. Your responsive should be concise and straight to the point."
-  },
+  prompt,
   {
     "role":"user",
     "content":"Hello there!"
@@ -62,9 +71,9 @@ const getAnswer = async (prompt:string) => {
   });
 
   try {
-    const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 }, { apiVersion: version });
+    const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 }/* , { apiVersion: version } */);
     for (const choice of result.choices) {
-      console.log(`Chatbot: ${choice.message.content}`);
+      if (choice.message) console.log(`Chatbot: ${choice.message.content}`);
     }
     return result;
   } catch (error) {
@@ -79,6 +88,10 @@ const addMessage = async (role: string, content: string) => {
     "content": content
   });
   return chat;
+}
+
+const startchatLightuser = async () => {
+
 }
 
 const openaiController = async (req: Request, res: Response) => { //TODO: async?
