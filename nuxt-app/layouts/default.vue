@@ -23,7 +23,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
 .app-container {
     background-color: var(--grey-1);
     display: flex;
-    min-height: 100vh;
+    min-height: 100svh;
 }
 .main-content {
     background-color: var(--white-2);

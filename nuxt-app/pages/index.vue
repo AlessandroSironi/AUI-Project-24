@@ -4,6 +4,9 @@ const config = useRuntimeConfig();
 
 const res = useFetch(config.public.baseURL + '/');
 console.log(res);
+
+// redirect to main page, the chatbot
+navigateTo('/AIChatHelper');
 </script>
 
 <template>
