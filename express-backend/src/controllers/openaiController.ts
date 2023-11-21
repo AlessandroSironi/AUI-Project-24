@@ -89,10 +89,7 @@ const openaiController = async (req: Request, res: Response) => { //TODO: async?
 
     const result = await getAnswer(request);
     console.log(`Result: ${result}`);
-    /* const result2 = await retrieveChatHistory("6db8a464-9c27-423e-b20e-f46197029da0");
-    res.send(result2);
-    console.log("Result2: ", result2);
- */
+    res.send(result);
   } catch (error) {
     console.error("Error: ", error);
   }   

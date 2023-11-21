@@ -20,6 +20,9 @@ app.use('/api/testController', testRouter);
 import openaiRouter from './src/routes/openaiRoute';
 app.use('/api/openaiController', openaiRouter);
 
+import retrieveChatRouter from './src/routes/retrieveChatRoute';
+app.use('/api/retrieveChatController', retrieveChatRouter);
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });
