@@ -1,6 +1,8 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
+import {createClient} from '@supabase/supabase-js'
+
 
 import "../types/schema";
 
@@ -9,6 +11,10 @@ const endpoint = "https://aui-openai.openai.azure.com/";
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
 const deploymentName = "ChatGPT35";
 const version = "2023-07-01-preview";
+
+const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
+const supabaseKey = env.SUPABASE_KEY ?? "default_key";
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 const prompt = {
   "role":"system",
@@ -82,12 +88,34 @@ const startchatLightuser = async () => {
 
 }
 
+const saveMessage = async (profile_id: string, message: string, is_chatgpt: boolean, is_routine: boolean) => {
+  try {
+    const dataToInsert = {
+      profile_id: profile_id,
+      message: message, 
+      is_chatgpt: is_chatgpt, 
+      is_routine: is_routine,
+      timestamp: Date.now()
+    };
+
+    const tableName = 'message';
+
+    const { data, error } = await supabaseClient
+    .from(tableName)
+    .upsert([dataToInsert]);
+  } catch (error) {    
+      throw new Error("failed to save message");
+  }
+}
+
 const openaiController = async (req: Request, res: Response) => { //TODO: async?
   try {
-    const request = req.body.message;
-    console.log(`Request: ${request}`);
+    const userMessage = req.body.message;
+    console.log(`Request: ${userMessage}`);
 
-    const result = await getAnswer(request);
+    saveMessage(req.body.profile_id, userMessage, false, false);
+
+    const result = await getAnswer(userMessage);
     console.log(`Result: ${result}`);
     res.send(result);
   } catch (error) {
