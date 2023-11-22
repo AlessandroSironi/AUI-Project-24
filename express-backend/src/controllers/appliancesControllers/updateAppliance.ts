@@ -26,7 +26,7 @@ const upsertApplianceController = async (req: Request, res: Response) => {
 
         const { data, error } = await supabaseClient
         .from(tableName)
-        .upsert([ dataToInsert ]);
+        .update([ dataToInsert ]);
         if (error) console.log("Error: ", error);
         console.log("Upserted appliance: ", dataToInsert.appliance_name);
         res.send(dataToInsert);

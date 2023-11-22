@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 
-import upsertAppliance from '../controllers/appliancesControllers/upsertAppliance';
+import upsertAppliance from '../controllers/appliancesControllers/updateAppliance';
 
 const router = express.Router();
 
