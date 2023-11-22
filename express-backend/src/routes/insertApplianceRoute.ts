@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 
-import insertAppliance from '../controllers/appliancesControllers/updateAppliance';
+import insertAppliance from '../controllers/appliancesControllers/insertAppliance';
 
 const router = express.Router();
 
