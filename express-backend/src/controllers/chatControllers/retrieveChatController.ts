@@ -19,13 +19,12 @@ const retrieveChatController = async (req: Request, res: Response) => {
       .eq('profile_id', req.body.profile_id)
       .order('timestamp', { ascending: false })
       .limit(MESSAGE_LIMIT);
-
-    if (data) {
+    /* if (data) {
       data.unshift(prompt);
       res.send(data);
     } else {
       throw new Error('Data is null');
-    }
+    } */
   } catch (error) {
     console.error("retrieveChatHistory error: ", error);
     throw error;

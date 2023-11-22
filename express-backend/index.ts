@@ -17,11 +17,13 @@ app.get('/', (req: Request, res: Response) => {
 import testRouter from './src/routes/testRoute';
 app.use('/api/testController', testRouter);
 
+// Ask ChatGPT
 import openaiRouter from './src/routes/openaiRoute';
 app.use('/api/openaiController', openaiRouter);
 
+//Retrive chat history
 import retrieveChatRouter from './src/routes/retrieveChatRoute';
-app.use('/api/retrieveChatController', retrieveChatRouter);
+app.use('/api/chat/retrieveChat', retrieveChatRouter);
 
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
