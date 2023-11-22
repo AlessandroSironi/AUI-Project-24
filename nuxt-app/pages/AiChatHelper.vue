@@ -9,7 +9,7 @@ const date2 = useDateFormatter(new Date(), DateType['message date (weekday hh:mm
 </script>
 
 <template>
-    <Header title="EcoMate" />
+    <Header title="EcoMate" :is-action-button-enabled="true" />
     <div class="main">
         <div class="chat-container">
             <ChatBubble :messageContent="content1" :is-from-user="false" :date="date1" />
@@ -25,13 +25,14 @@ const date2 = useDateFormatter(new Date(), DateType['message date (weekday hh:mm
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    overflow-y: scroll;
 }
 
 .chat-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow: scroll;
+    overflow-y: scroll;
     gap: 1.2rem;
 }
 </style>

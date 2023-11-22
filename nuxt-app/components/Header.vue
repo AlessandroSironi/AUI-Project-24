@@ -6,6 +6,7 @@
  */
 interface Props {
     title: string;
+    isActionButtonEnabled: boolean;
 }
 
 const { title } = defineProps<Props>();
@@ -24,7 +25,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
         <div class="header-title">
             <h1 class="header-title-text">{{ title }}</h1>
         </div>
-        <div class="header-action-button"><Icon name="icon-park-outline:add" size="1.8rem" /></div>
+        <div class="header-action-button" :class="isActionButtonEnabled ? '' : 'header-action-button-invisible'"><Icon name="icon-park-outline:add" size="1.8rem" /></div>
     </div>
 </template>
 
@@ -36,6 +37,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    z-index: 1;
 }
 
 .header-menu {
@@ -62,5 +64,9 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     visibility: hidden;
     opacity: 0;
     transition: 0.1s ease-out all;
+}
+
+.header-action-button-invisible {
+    visibility: hidden;
 }
 </style>
