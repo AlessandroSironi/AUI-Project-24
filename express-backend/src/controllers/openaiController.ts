@@ -129,4 +129,3 @@ const openaiController = async (req: Request, res: Response) => { //TODO: async?
 };
 
 export default openaiController;
-

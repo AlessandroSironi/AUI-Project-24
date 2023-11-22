@@ -21,9 +21,13 @@ app.use('/api/testController', testRouter);
 import openaiRouter from './src/routes/openaiRoute';
 app.use('/api/openaiController', openaiRouter);
 
-//Retrive chat history
+// Retrive chat history
 import retrieveChatRouter from './src/routes/retrieveChatRoute';
 app.use('/api/chat/retrieveChat', retrieveChatRouter);
+
+// Get list of appliance types
+import getApplianceTypesRouter from './src/routes/getApplianceTypesRoute';
+app.use('/api/appliance/getApplianceTypes', getApplianceTypesRouter);
 
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
