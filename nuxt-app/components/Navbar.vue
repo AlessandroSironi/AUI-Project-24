@@ -3,6 +3,14 @@
 const navbarStore = useNavbarStore();
 const { toggleNavbar } = navbarStore;
 const { isNavbarVisible } = storeToRefs(navbarStore);
+
+const supabase = useSupabaseClient();
+
+const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error !== null) console.log(error);
+    navigateTo('/login');
+};
 </script>
 
 <template>
@@ -16,13 +24,13 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
             </div>
             <div class="navbar-links-tab">
                 <NavLink name="AI Chat Helper" url="/AiChatHelper" icon="mingcute:chat-4-line" @click="toggleNavbar(true)" />
-                <NavLink name="Appliances List" url="/Appliances" icon="material-symbols:add-home-outline" @click="toggleNavbar(true)" />
-                <NavLink name="Routines List" url="/Routines" icon="carbon:task-settings" @click="toggleNavbar(true)" />
-                <NavLink name="Settings" url="/Settings" icon="iconamoon:options" @click="toggleNavbar(true)" />
-                <NavLink name="Updates and FAQs" url="/Updates" icon="ri:question-line" @click="toggleNavbar(true)" />
+                <NavLink name="Appliances List" url="/appliances" icon="material-symbols:add-home-outline" @click="toggleNavbar(true)" />
+                <NavLink name="Routines List" url="/routines" icon="carbon:task-settings" @click="toggleNavbar(true)" />
+                <NavLink name="Settings" url="/settings" icon="iconamoon:options" @click="toggleNavbar(true)" />
+                <NavLink name="Updates and FAQs" url="/updates" icon="ri:question-line" @click="toggleNavbar(true)" />
             </div>
             <div class="navbar-logout-tab">
-                <hr class="line" /> <div class="logout-link"> <Icon name="material-symbols:logout" size="1.8rem" /> Logout </div>
+                <hr class="line" /> <div class="logout-link" @click="logout"> <Icon name="material-symbols:logout" size="1.8rem" /> Logout </div>
             </div>
         </div>
     </div>
@@ -34,6 +42,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     font-weight: 500;
     max-width: 350px;
     display: flex;
+    background-color: var(--grey-1);
 }
 
 .navbar-visible {
@@ -96,9 +105,10 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     gap: 1rem;
     align-items: center;
     padding: 0 1rem;
+    cursor: pointer;
 }
 
-@media only screen and (width < 700px) {
+@media only screen and (width < 767px) {
     .navbar-container {
         max-width: 100%;
     }
@@ -120,6 +130,10 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
 
     .navbar-logout-tab {
         padding: 3rem 2rem;
+    }
+
+    .navbar-invisible {
+        overflow-y: hidden;
     }
 }
 </style>
