@@ -33,6 +33,10 @@ app.use('/api/appliance/getApplianceTypes', getApplianceTypesRouter);
 import getApplianceRouter from './src/routes/getApplianceRoute';
 app.use('/api/appliance/getAppliance', getApplianceRouter);
 
+//Upsert appliance data
+import upsertApplianceRouter from './src/routes/upsertApplianceRoute';
+app.use('/api/appliance/upsertAppliance', upsertApplianceRouter);
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });
