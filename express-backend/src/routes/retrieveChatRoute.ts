@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 
-import retrieveChat from '../controllers/retrieveChatController';
+import retrieveChat from '../controllers/chatControllers/retrieveChatController';
 
 const router = express.Router();
 
