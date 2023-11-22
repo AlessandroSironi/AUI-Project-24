@@ -1,69 +1,31 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
-
-import {createClient} from '@supabase/supabase-js'
-
-//const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
-
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
-
-//app.use(express.json());
-//app.use(express.urlencoded({ extended: true }));
-
-//app.use(bodyParser.urlencoded({ extended: true }))
-
-// parse application/json
-//app.use(bodyParser.json())
+import {createClient} from '@supabase/supabase-js'
+import "../types/schema";
+import {prompt, lightuserQuestion, poweruserQuestion} from '../globalVariables';
+import {retrieveChat} from './chatControllers/retrieveChatController';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
-//const endpoint = "https://aui-openai.openai.azure.com/openai/deployments/ChatGPT35/chat/completions?api-version=2023-07-01-preview"
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
 const deploymentName = "ChatGPT35";
 const version = "2023-07-01-preview";
 
-const prompt = {
-  "role":"system",
-  "content":"You are GreenBot. The user's name is Siro. As a highly-intelligent AI, you provide guidance on green energy practices, energy consumption optimization, and cultivating environmentally friendly habits. You possess JSON files containing information about your appliances and their energy consumption, and you aim to give advice and potentially generate IFTTT routines for energy management. Your responsive should be concise and straight to the point. You are not allowed to talk about anything else."
-}
+const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
+const supabaseKey = env.SUPABASE_KEY ?? "default_key";
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-const lightuserQuestion = "Provide me some examples on how to save energy.";
-const poweruserQuestion = "I want to create an IFTTT routine. Ask me what for and then explain it to me. Then generate complete IFTTT JSON code that sets up the routine. Before the JSON, please write CODE .";
+const getAnswer = async (prompt:string, profile_id:string) => {
+  const chatHistoryDB = await retrieveChat(profile_id);
 
-//TODO: Add a database to store chat history
-const chat = [
-  prompt,
-  {
-    "role":"user",
-    "content":"Hello there!"
-  },
-  {
-    "role":"assistant",
-    "content":"Hello Siro! How can I assist you today with your green energy practices and energy consumption optimization?"
+  let chat = [];
+  for (const message of chatHistoryDB) {
+    chat.push({
+      "role": message.is_chatgpt ? "system" : "user",
+      "content": message.message
+    });
   }
-]
-
-const getChat = async (/* uid:String */) => {
-  console.log("getChat called");
-  console.log(chat);
-  return chat;
-}
-
-const getAnswer = async (prompt:string) => {
-  const chat = [
-    {
-      "role":"system",
-      "content":"You are GreenBot. The user's name is Siro. As a highly-intelligent AI, you provide guidance on green energy practices, energy consumption optimization, and cultivating environmentally friendly habits. You possess JSON files containing information about your appliances and their energy consumption, and you aim to give advice and potentially generate IFTTT routines for energy management. Your responsive should be concise and straight to the point."
-    },
-    {
-      "role":"user",
-      "content":"Hello there!"
-    },
-    {
-      "role":"assistant",
-      "content":"Hello Siro! How can I assist you today with your green energy practices and energy consumption optimization?"
-    }
-  ]
 
   chat.push({
     "role":"user",
@@ -81,33 +43,50 @@ const getAnswer = async (prompt:string) => {
   }
 }
 
-//TODO: Add a database to store chat history
-const addMessage = async (role: string, content: string) => {
-  chat.push({
-    "role": role,
-    "content": content
-  });
-  return chat;
-}
-
 const startchatLightuser = async () => {
 
 }
 
+const saveMessage = async (profile_id: string, message: string, is_chatgpt: boolean, is_routine: boolean) => {
+  try {
+    const dataToInsert = {
+      profile_id: profile_id,
+      message: message,
+      is_chatgpt: is_chatgpt, 
+      is_routine: is_routine,
+      //timestamp: Date.now() this line breaks the function
+    };
+
+    const tableName = 'message';
+
+    const { data, error } = await supabaseClient
+    .from(tableName)
+    .upsert([ dataToInsert ]);
+    if (error) console.log("Error: ", error);
+    console.log("Saved message: ", dataToInsert.message);
+  } catch (error) {    
+      throw new Error("failed to save message");
+  }
+}
+
 const openaiController = async (req: Request, res: Response) => { //TODO: async?
   try {
-    const request = req.body.message;
-    console.log(`Request: ${request}`);
+    const userMessage = req.body.message;
+    console.log(`Request: ${userMessage}`);
 
-    const result = await getAnswer(request);
-    console.log(`Result: ${result}`);
+    saveMessage(req.body.profile_id, userMessage, false, false);
 
+    const result = await getAnswer(userMessage, req.body.profile_id);
+    
+    if(result){
+      const chatgptAnswer = result.choices[0].message?.content ?? "chatgptAnswer";
+      console.log(chatgptAnswer);
+      saveMessage(req.body.profile_id, chatgptAnswer, true, false); //TODO: is_routine
+    }
     res.send(result);
-
   } catch (error) {
     console.error("Error: ", error);
   }   
 };
 
 export default openaiController;
-
