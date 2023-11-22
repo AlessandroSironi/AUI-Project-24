@@ -9,7 +9,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 const updateApplianceController = async (req: Request, res: Response) => {
-    const appliance_id = req.params.appliance_id;
+    const id = req.body.id;
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const profile_id = req.body.profile_id;
@@ -26,7 +26,7 @@ const updateApplianceController = async (req: Request, res: Response) => {
         const { data, error } = await supabaseClient
             .from(tableName)
             .update(dataToUpdate)
-            .eq('id', appliance_id);
+            .eq('id', id);
 
         if (error) {
             console.log("Error: ", error);
