@@ -1,19 +1,19 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
-    import { Icon } from '@iconify/vue';
+/**
+ * TODO: implement the function for the backend and
+ * a "fashion function" to auto-resize the input
+ */
 </script>
 
 <template>
     <div class="user-textarea-container">
-        <textarea class="user-textarea" cols="100" rows="2"> </textarea>
+        <textarea class="user-textarea" cols="100" rows="1"> </textarea>
         <button class="send-button">
-            <Icon :icon="'mynaui:send'" :color="'white'" :name="'your-icon-name'" :width="30" :height="30" />
+            <Icon name="material-symbols-light:send" color="white" size="2rem" />
         </button>
     </div>
     <div>
-        <p class="disclaimer-text">
-            ChatGPT can make mistakes. Consider checking important information.
-        </p>
+        <p class="disclaimer-text"> ChatGPT can make mistakes. Consider checking important information. </p>
     </div>
 </template>
 
@@ -26,24 +26,28 @@
 .user-textarea {
     width: 100%;
     padding: 1rem;
-    border-radius: 15px;
+    border-radius: 1rem;
     border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    resize: none;
+    font-size: 1rem;
+    height: auto;
+    height: 3rem;
 }
 
 .send-button {
     width: 50px;
     background-color: var(--green-1);
-    border-radius: 15px;
+    border-radius: 1rem;
     border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    vertical-align: center;
+    flex-grow: 1;
+    cursor: pointer;
 }
 
 .disclaimer-text {
-    margin-top: 10px;
-    color: gray;
+    margin-top: 0.8rem;
+    color: var(--grey-2);
     text-align: center;
 }
-
 </style>

@@ -8,7 +8,7 @@
 import { defineStore } from 'pinia';
 
 export const useNavbarStore = defineStore('navbar', () => {
-    const isNavbarVisible = ref(true);
+    const isNavbarVisible = ref(false);
 
     /**
      * This workaround is needed to make sure that the sidebar
