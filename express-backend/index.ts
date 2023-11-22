@@ -41,6 +41,14 @@ app.use('/api/appliance/insertAppliance', insertApplianceRouter);
 import updateApplianceRouter from './src/routes/updateApplianceRoute';
 app.use('/api/appliance/updateAppliance', updateApplianceRouter);
 
+//Insert new routine
+import insertRoutineRouter from './src/routes/insertRoutineRoute';
+app.use('/api/routine/insertRoutine', insertRoutineRouter);
+
+//Update routine
+import updateRoutineRouter from './src/routes/updateRoutineRoute';
+app.use('/api/routine/updateRoutine', updateRoutineRouter);
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });
