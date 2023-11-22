@@ -29,6 +29,10 @@ app.use('/api/chat/retrieveChat', retrieveChatRouter);
 import getApplianceTypesRouter from './src/routes/getApplianceTypesRoute';
 app.use('/api/appliance/getApplianceTypes', getApplianceTypesRouter);
 
+//Get single appliance data
+import getApplianceRouter from './src/routes/getApplianceRoute';
+app.use('/api/appliance/getAppliance', getApplianceRouter);
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });
