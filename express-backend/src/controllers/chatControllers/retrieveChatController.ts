@@ -11,16 +11,23 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 const MESSAGE_LIMIT = 25;
 
 const retrieveChatController = async (req: Request, res: Response) => {
+  const profile_id = req.body.profile_id;
+  const retrievedChat = await retrieveChat(profile_id);
+  
+  res.send(retrievedChat);
+}
+
+const retrieveChat = async (profile_id:string) => {
   try {
     const { data, error } = await supabaseClient
       .from('message')
       .select('*')
-      .eq('profile_id', req.body.profile_id)
+      .eq('profile_id', profile_id)
       .order('timestamp', { ascending: false })
       .limit(MESSAGE_LIMIT);
     if (data) {
       //data.unshift(prompt);
-      res.send(data);
+      return data;
     } else {
       throw new Error('Data is null');
     }
@@ -29,5 +36,5 @@ const retrieveChatController = async (req: Request, res: Response) => {
     throw error;
   }
 }
-
+export { retrieveChat };
 export default retrieveChatController;
