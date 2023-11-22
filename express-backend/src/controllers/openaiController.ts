@@ -92,17 +92,17 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
   try {
     const dataToInsert = {
       profile_id: profile_id,
-      message: message, 
+      message: message,
       is_chatgpt: is_chatgpt, 
       is_routine: is_routine,
-      timestamp: Date.now()
+      //timestamp: Date.now() this line breaks the function
     };
 
     const tableName = 'message';
 
     const { data, error } = await supabaseClient
     .from(tableName)
-    .upsert([dataToInsert]);
+    .upsert([{ dataToInsert }]);
   } catch (error) {    
       throw new Error("failed to save message");
   }
@@ -117,6 +117,11 @@ const openaiController = async (req: Request, res: Response) => { //TODO: async?
 
     const result = await getAnswer(userMessage);
     console.log(`Result: ${result}`);
+    
+    if(result){
+      const chatgptAnswer = result.choices[0].message?.content ?? "chatgptAnswer";
+      saveMessage(req.body.profile_id, chatgptAnswer, true, false); //TODO: is_routine
+    }
     res.send(result);
   } catch (error) {
     console.error("Error: ", error);
