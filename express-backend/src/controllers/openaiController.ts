@@ -121,4 +121,4 @@ const openaiHandler = async (req: Request, res: Response) => {
   }   
 };
 
-export default {openaiHandler};
+export default openaiHandler;
