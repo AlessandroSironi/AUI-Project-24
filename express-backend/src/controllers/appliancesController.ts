@@ -13,7 +13,7 @@ const getAppliance = async (req: Request, res: Response) => {
         const { data, error }: { data: any, error: any } = await supabaseClient
             .from('appliance')
             .select('*')
-            .eq('id', req.body.id);
+            .eq('id', req.query.id);
 
         if (error) {
             throw new Error(error.message);
@@ -104,4 +104,35 @@ const updateAppliance = async (req: Request, res: Response) => {
     }
 }
 
-export {getAppliance, getApplianceTypes, insertAppliance, updateAppliance};
+const getApplianceOfUser = async (req: Request, res: Response) => {
+    try {
+        const { data, error }: { data: any, error: any } = await supabaseClient
+            .from('appliance')
+            .select('*')
+            .eq('profile_id', req.query.profile_id);
+
+        if (error) {
+            throw new Error(error.message);
+        }
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+    try{
+        const { data, error }: { data: any, error: any } = await supabaseClient
+            .from('appliance')
+            .select('room')
+            .eq('profile_id', req.query.profile_id)
+        
+        
+        const uniqueValues = [...new Set(data.map((item: { room: any; }) => item.room))];
+        console.log(uniqueValues)
+        if (error) {
+            throw new Error(error.message);
+        }
+        res.status(200).json(uniqueValues);
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+}
+
+export {getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser};
