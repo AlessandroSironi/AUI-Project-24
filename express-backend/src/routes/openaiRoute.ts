@@ -4,7 +4,6 @@ import openaiHandler from '../controllers/openaiController';
 
 const router = express.Router();
 
-router.get('/', openaiHandler);
-router.post('/', openaiHandler);
+router.post('/openaiHandler', openaiHandler);
 
 export default router;

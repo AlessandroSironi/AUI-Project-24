@@ -1,7 +1,7 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 import {createClient} from '@supabase/supabase-js'
-import "../../types/schema";
+import "../types/schema";
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
 const supabaseKey = env.SUPABASE_KEY ?? "default_key";

@@ -4,7 +4,6 @@ import {retrieveChat} from '../controllers/chatController';
 
 const router = express.Router();
 
-router.get('/', retrieveChat);
-router.post('/', retrieveChat);
+router.get('/retrieveChat', retrieveChat);
 
 export default router;

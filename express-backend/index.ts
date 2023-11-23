@@ -13,9 +13,9 @@ app.use(bodyParser.json());
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello from the server');
 });
-
+/* 
 import testRouter from './src/routes/testRoute';
-app.use('/api/testController', testRouter);
+app.use('/api/testController', testRouter); */
 
 // Ask ChatGPT
 import openai from './src/routes/openaiRoute';

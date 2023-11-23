@@ -4,10 +4,10 @@ import {getAppliance, getApplianceTypes, insertAppliance, updateAppliance} from 
 
 const router = express.Router();
 
-router.get('/', getAppliance);
-router.get('/', getApplianceTypes);
-router.post('/', insertAppliance);
-router.post('/', updateAppliance);
+router.get('/getAppliance', getAppliance);
+router.get('/getApplianceTypes', getApplianceTypes);
+router.post('/insertAppliance', insertAppliance);
+router.post('/updateAppliance', updateAppliance);
 
 
 export default router;
