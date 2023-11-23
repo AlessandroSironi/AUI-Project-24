@@ -13,41 +13,23 @@ app.use(bodyParser.json());
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello from the server');
 });
-
+/* 
 import testRouter from './src/routes/testRoute';
-app.use('/api/testController', testRouter);
+app.use('/api/testController', testRouter); */
 
 // Ask ChatGPT
-import openaiRouter from './src/routes/openaiRoute';
-app.use('/api/openaiController', openaiRouter);
+import openai from './src/routes/openaiRoute';
+app.use('/api/openai', openai);
 
 // Retrive chat history
-import retrieveChatRouter from './src/routes/retrieveChatRoute';
-app.use('/api/chat/retrieveChat', retrieveChatRouter);
+import chatRouter from './src/routes/chatRoute';
+app.use('/api/chat', chatRouter);
 
-// Get list of appliance types
-import getApplianceTypesRouter from './src/routes/getApplianceTypesRoute';
-app.use('/api/appliance/getApplianceTypes', getApplianceTypesRouter);
+import applianceRouter from './src/routes/appliancesRoute';
+app.use('/api/appliance', applianceRouter);
 
-//Get single appliance data
-import getApplianceRouter from './src/routes/getApplianceRoute';
-app.use('/api/appliance/getAppliance', getApplianceRouter);
-
-//Insert new appliance
-import insertApplianceRouter from './src/routes/insertApplianceRoute';
-app.use('/api/appliance/insertAppliance', insertApplianceRouter);
-
-//Update appliance data
-import updateApplianceRouter from './src/routes/updateApplianceRoute';
-app.use('/api/appliance/updateAppliance', updateApplianceRouter);
-
-//Insert new routine
-import insertRoutineRouter from './src/routes/insertRoutineRoute';
-app.use('/api/routine/insertRoutine', insertRoutineRouter);
-
-//Update routine
-import updateRoutineRouter from './src/routes/updateRoutineRoute';
-app.use('/api/routine/updateRoutine', updateRoutineRouter);
+import routineRouter from './src/routes/routinesRoute';
+app.use('/api/routine', routineRouter);
 
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);

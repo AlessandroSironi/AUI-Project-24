@@ -15,18 +15,21 @@ export interface Database {
           appliance_type: number
           id: number
           profile_id: string
+          room: string
         }
         Insert: {
           appliance_name: string
           appliance_type: number
           id?: number
           profile_id: string
+          room: string
         }
         Update: {
           appliance_name?: string
           appliance_type?: number
           id?: number
           profile_id?: string
+          room?: string
         }
         Relationships: [
           {
