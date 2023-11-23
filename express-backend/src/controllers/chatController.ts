@@ -10,14 +10,8 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 const MESSAGE_LIMIT = 25; //maybe 10 are enough
 
-const retrieveChatController = async (req: Request, res: Response) => {
+const retrieveChat = async (req: Request, res: Response) => {
   const profile_id = req.body.profile_id;
-  const retrievedChat = await retrieveChat(profile_id);
-  
-  res.send(retrievedChat);
-}
-
-const retrieveChat = async (profile_id:string) => {
   try {
     const { data, error } = await supabaseClient
       .from('message')
@@ -26,8 +20,8 @@ const retrieveChat = async (profile_id:string) => {
       .order('timestamp', { ascending: true })
       .limit(MESSAGE_LIMIT);
     if (data) {
-      //data.unshift(prompt);
-      return data;
+      const retrievedChat = data; //TODO: make json for samu
+      res.send(retrievedChat);
     } else {
       throw new Error('Data is null');
     }
@@ -37,4 +31,3 @@ const retrieveChat = async (profile_id:string) => {
   }
 }
 export { retrieveChat };
-export default retrieveChatController;
