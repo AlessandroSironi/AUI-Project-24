@@ -19,7 +19,7 @@ app.use('/api/testController', testRouter);
 
 // Ask ChatGPT
 import openai from './src/routes/openaiRoute';
-app.use('/api/openaiController', openai);
+app.use('/api/openai', openai);
 
 // Retrive chat history
 import chatRouter from './src/routes/chatRoute';

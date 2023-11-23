@@ -4,7 +4,6 @@ import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import {createClient} from '@supabase/supabase-js'
 import "../types/schema";
 import {prompt, lightuserQuestion, poweruserQuestion, routinePrompt} from '../globalVariables';
-import {retrieveChat} from './chatController';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
@@ -16,9 +15,26 @@ const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
 const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+const MESSAGE_LIMIT = 25;
+const retrieveChat = async (profile_id: string) => {
+  try {
+    const { data, error } = await supabaseClient
+      .from('message')
+      .select('*')
+      .eq('profile_id', profile_id)
+      .order('timestamp', { ascending: true })
+      .limit(MESSAGE_LIMIT);
+
+      if (data) return data;
+      else throw new Error('Data is null');
+  } catch (error) {
+    console.error("retrieveChatHistory error: ", error);
+    throw error;
+  }
+}
+
 const getAnswer = async (question:string, profile_id:string, isPower: boolean) => {
-  const chatHistoryDB = await retrieveChat(profile_id);
-  
+  const chatHistoryDB = await retrieveChat(profile_id); 
   let chat = [];
   chat.push(prompt);
 
@@ -81,7 +97,7 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
   }
 }
 
-const openaiController = async (req: Request, res: Response) => { 
+const openaiHandler = async (req: Request, res: Response) => { 
   try {
     const userMessage = req.body.message;
     let isPower = req.body.isPower; 
@@ -105,4 +121,4 @@ const openaiController = async (req: Request, res: Response) => {
   }   
 };
 
-export default openaiController;
+export default {openaiHandler};
