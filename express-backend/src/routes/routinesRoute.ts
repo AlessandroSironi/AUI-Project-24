@@ -1,10 +1,10 @@
 import express, { Express } from 'express';
 
-import insertRoutine from '../controllers/routinesController/insertRoutine'
+import {insertRoutine, updateRoutine} from '../controllers/routineController'
 
 const router = express.Router();
 
-router.get('/', insertRoutine);
 router.post('/', insertRoutine);
+router.post('/', updateRoutine);
 
 export default router;

@@ -8,7 +8,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-const insertRoutineController = async (req: Request, res: Response) => {
+const insertRoutine = async (req: Request, res: Response) => {
     const profile_id = req.body.profile_id
     const routine_name = req.body.routine_name;
     const json = req.body.json;
@@ -39,4 +39,37 @@ const insertRoutineController = async (req: Request, res: Response) => {
     }
 }
 
-export default insertRoutineController;
+const updateRoutine = async (req: Request, res: Response) => {
+    const id = req.body.id;
+    const profile_id = req.body.profile_id
+    const routine_name = req.body.routine_name;
+    const json = req.body.json;
+
+    try {
+        const dataToUpdate = {
+            profile_id: profile_id,
+            routine_name: routine_name,
+            json: json
+        };
+
+        const tableName = 'routine';
+
+        const { data, error } = await supabaseClient
+            .from(tableName)
+            .update(dataToUpdate)
+            .eq('id', id);
+
+        if (error) {
+            console.log("Error: ", error);
+            throw new Error("Failed to update routine");
+        }
+
+        console.log("Updated routine: ", dataToUpdate.routine_name);
+        res.send(dataToUpdate);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to update routine");
+    }
+}
+
+export {insertRoutine, updateRoutine};

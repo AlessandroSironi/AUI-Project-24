@@ -4,7 +4,7 @@ import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import {createClient} from '@supabase/supabase-js'
 import "../types/schema";
 import {prompt, lightuserQuestion, poweruserQuestion, routinePrompt} from '../globalVariables';
-import {retrieveChat} from './chatControllers/retrieveChatController';
+import {retrieveChat} from './chatController';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
