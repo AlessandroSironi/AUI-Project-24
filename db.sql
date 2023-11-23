@@ -41,6 +41,22 @@ create table if not exists
     foreign key (appliance_type) references appliance_type (id) on update cascade on delete cascade
   );
 
+INSERT INTO appliance_type (id, type) VALUES
+  (1, 'Thermostat'),
+  (2, 'Lightbulb'),
+  (3, 'Switch'),
+  (4, 'Plug'),
+  (5, 'Lock'),
+  (6, 'Speaker'),
+  (7, 'Smart TV'),
+  (8, 'Microwave'),
+  (9, 'Oven'),
+  (10, 'Smart Vacuum Cleaner'),
+  (11, 'Air Conditioner'),
+  (12, 'Dishwasher'),
+  (13, 'Washing Machine'),
+  (14, 'Dryer');
+
 
 
 /* /* Create user table */
