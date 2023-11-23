@@ -8,7 +8,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-const MESSAGE_LIMIT = 25;
+const MESSAGE_LIMIT = 25; //maybe 10 are enough
 
 const retrieveChatController = async (req: Request, res: Response) => {
   const profile_id = req.body.profile_id;
@@ -23,7 +23,7 @@ const retrieveChat = async (profile_id:string) => {
       .from('message')
       .select('*')
       .eq('profile_id', profile_id)
-      .order('timestamp', { ascending: false })
+      .order('timestamp', { ascending: true })
       .limit(MESSAGE_LIMIT);
     if (data) {
       //data.unshift(prompt);
