@@ -8,6 +8,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+//GET: requires the appliance unique id and returns the associated row: id, profile_id, appliance_name, appliance_type and room
 const getAppliance = async (req: Request, res: Response) => {
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
@@ -24,6 +25,7 @@ const getAppliance = async (req: Request, res: Response) => {
     }
 }
 
+//GET: returns all the appliance types: it's an array of jsons with the following fields: id, type
 const getApplianceTypes = async (req: Request, res: Response) => {
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
@@ -40,6 +42,7 @@ const getApplianceTypes = async (req: Request, res: Response) => {
     }
 }
 
+//POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
@@ -71,17 +74,18 @@ const insertAppliance = async (req: Request, res: Response) => {
     }
 }
 
+//POST: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
 const updateAppliance = async (req: Request, res: Response) => {
     const id = req.body.id;
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
-    const profile_id = req.body.profile_id;
+    //const profile_id = req.body.profile_id;
 
     try {
         const dataToUpdate = {
             appliance_type: appliance_type,
             appliance_name: appliance_name,
-            profile_id: profile_id
+            //profile_id: profile_id
         };
 
         const tableName = 'appliance';
@@ -104,6 +108,8 @@ const updateAppliance = async (req: Request, res: Response) => {
     }
 }
 
+//TODO: make this api returning two arrays(?) with the appliances and the rooms
+//GET: requires the profile_id and returns all the appliances associated with that profile
 const getApplianceOfUser = async (req: Request, res: Response) => {
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
@@ -132,7 +138,7 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
         res.status(200).json(uniqueValues);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
-    }
+    } 
 }
 
 export {getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser};

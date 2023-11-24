@@ -16,6 +16,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 const MESSAGE_LIMIT = 25;
+
 const retrieveChat = async (profile_id: string) => {
   try {
     const { data, error } = await supabaseClient
@@ -97,6 +98,8 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
   }
 }
 
+//POST: requires user message, profile_id and isPower flag (optional, to be set if the user is asking for a routine)
+// the API generates a response from chatgpt and saves both request and response in the db
 const openaiHandler = async (req: Request, res: Response) => { 
   try {
     const userMessage = req.body.message;
