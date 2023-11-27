@@ -19,12 +19,6 @@ const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 const MESSAGE_LIMIT = 25;
 
 const retrieveChat = async (profile_id: string) => {
-  const validation = z.string();
-  try {
-    validation.parse(profile_id);
-  } catch (error) {
-    throw new Error("Invalid profile_id");
-  }
   try {
     const { data, error } = await supabaseClient
       .from('message')
@@ -42,24 +36,6 @@ const retrieveChat = async (profile_id: string) => {
 }
 
 const getAnswer = async (question:string, profile_id:string, isPower: boolean) => {
-  const validation = z.object({
-    question: z.string(),
-    profile_id: z.string(),
-    isPower: z.boolean(),
-  });
-
-  const dataToValidate = {
-    question: question,
-    profile_id: profile_id,
-    isPower: isPower,
-  };
-
-  try {
-    validation.parse(dataToValidate);
-  } catch (error) {
-    throw new Error("Invalid parameters.");
-  }
-
   const chatHistoryDB = await retrieveChat(profile_id); 
   let chat = [];
   chat.push(prompt);
@@ -124,9 +100,12 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 const openaiHandler = async (req: Request, res: Response) => { 
   try {
     const userMessage = req.body.message;
+    const profile_id = req.body.profile_id;
     const validationMessage = z.string();
+    const validationProfileID = z.string();
     try {
       validationMessage.parse(userMessage);
+      validationProfileID.parse(profile_id);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
       return;
@@ -135,7 +114,7 @@ const openaiHandler = async (req: Request, res: Response) => {
     if (isPower==null) isPower=false;
     console.log(`Request: ${userMessage}`);
 
-    saveMessage(req.body.profile_id, userMessage, false, false);
+    saveMessage(profile_id, userMessage, false, false);
 
     const result = await getAnswer(userMessage, req.body.profile_id, req.body.isPower);
     
