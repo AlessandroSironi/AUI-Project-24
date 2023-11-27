@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 import {createClient} from '@supabase/supabase-js'
+import {z} from 'zod';
 import "../types/schema";
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
@@ -15,6 +16,13 @@ const MESSAGE_LIMIT = 25; //maybe 10 are enough
 // plus a is_routing flag is set to TRUE if the message contains a code for a json routine
 const retrieveChat = async (req: Request, res: Response) => {
   const profile_id = req.body.profile_id;
+  const validation = z.string();
+  try {
+    validation.parse(profile_id);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+    return;
+  }
   try {
     const { data, error } = await supabaseClient
       .from('message')

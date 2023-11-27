@@ -2,8 +2,9 @@ import express, {Request, Response} from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import {createClient} from '@supabase/supabase-js'
-import "../types/schema";
 import {prompt, lightuserQuestion, poweruserQuestion, routinePrompt} from '../globalVariables';
+import { Database } from '../types/schema';
+import {z} from 'zod';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
@@ -13,7 +14,7 @@ const version = "2023-07-01-preview";
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
 const supabaseKey = env.SUPABASE_KEY ?? "default_key";
-const supabaseClient = createClient(supabaseUrl, supabaseKey);
+const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 
 const MESSAGE_LIMIT = 25;
 
@@ -68,10 +69,6 @@ const getAnswer = async (question:string, profile_id:string, isPower: boolean) =
   }
 }
 
-const startchatLightuser = async () => {
-
-}
-
 function checkIfRoutine(chatgptAnswer: string): boolean {
   return chatgptAnswer.includes('ROUTINE'); //TODO: find unique pattern for json routines
 }
@@ -103,11 +100,21 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 const openaiHandler = async (req: Request, res: Response) => { 
   try {
     const userMessage = req.body.message;
+    const profile_id = req.body.profile_id;
+    const validationMessage = z.string();
+    const validationProfileID = z.string();
+    try {
+      validationMessage.parse(userMessage);
+      validationProfileID.parse(profile_id);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+      return;
+    }
     let isPower = req.body.isPower; 
     if (isPower==null) isPower=false;
     console.log(`Request: ${userMessage}`);
 
-    saveMessage(req.body.profile_id, userMessage, false, false);
+    saveMessage(profile_id, userMessage, false, false);
 
     const result = await getAnswer(userMessage, req.body.profile_id, req.body.isPower);
     
