@@ -124,6 +124,13 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 const openaiHandler = async (req: Request, res: Response) => { 
   try {
     const userMessage = req.body.message;
+    const validationMessage = z.string();
+    try {
+      validationMessage.parse(userMessage);
+    } catch (error) {
+      res.status(400).json({ error: (error as Error).message });
+      return;
+    }
     let isPower = req.body.isPower; 
     if (isPower==null) isPower=false;
     console.log(`Request: ${userMessage}`);
