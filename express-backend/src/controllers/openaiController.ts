@@ -24,10 +24,10 @@ const retrieveChat = async (profile_id: string) => {
       .from('message')
       .select('*')
       .eq('profile_id', profile_id)
-      .order('timestamp', { ascending: true })
+      .order('timestamp', { ascending: false })
       .limit(MESSAGE_LIMIT);
 
-      if (data) return data;
+      if (data) return data.reverse();
       else throw new Error('Data is null');
   } catch (error) {
     console.error("retrieveChatHistory error: ", error);
