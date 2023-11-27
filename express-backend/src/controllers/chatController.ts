@@ -9,7 +9,7 @@ const supabaseKey = env.SUPABASE_KEY ?? "default_key";
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-const MESSAGE_LIMIT = 25; //maybe 10 are enough
+const MESSAGE_LIMIT = 10; //maybe 10 are enough
 
 //GET: requires profile_id and returns all the chat history with LIMIT = 25 ordered by timestamp, 
 // note that each message has a flag is_chatgpt to distinguish between messages sent by the user and messages sent by the chatbot
@@ -28,10 +28,10 @@ const retrieveChat = async (req: Request, res: Response) => {
       .from('message')
       .select('*')
       .eq('profile_id', profile_id)
-      .order('timestamp', { ascending: true })
+      .order('timestamp', { ascending: false })
       .limit(MESSAGE_LIMIT);
     if (data) {
-      const retrievedChat = data; //TODO: make json for samu
+      const retrievedChat = data.reverse(); //TODO: make json for samu
       res.send(retrievedChat);
     } else {
       throw new Error('Data is null');
