@@ -2,8 +2,8 @@ import express, {Request, Response} from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import {createClient} from '@supabase/supabase-js'
-import "../types/schema";
 import {prompt, lightuserQuestion, poweruserQuestion, routinePrompt} from '../globalVariables';
+import { Database } from '../types/schema';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
@@ -13,7 +13,7 @@ const version = "2023-07-01-preview";
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
 const supabaseKey = env.SUPABASE_KEY ?? "default_key";
-const supabaseClient = createClient(supabaseUrl, supabaseKey);
+const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 
 const MESSAGE_LIMIT = 25;
 
@@ -66,10 +66,6 @@ const getAnswer = async (question:string, profile_id:string, isPower: boolean) =
   } catch (error) {
     console.error("getAnser error: ", error);
   }
-}
-
-const startchatLightuser = async () => {
-
 }
 
 function checkIfRoutine(chatgptAnswer: string): boolean {
