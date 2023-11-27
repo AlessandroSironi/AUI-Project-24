@@ -67,7 +67,7 @@ const insertAppliance = async (req: Request, res: Response) => {
         }
 
         console.log("Inserted appliance: ", dataToInsert.appliance_name);
-        res.send(dataToInsert);
+        res.status(200).json(dataToInsert);
     } catch (error) {
         console.error(error);
         res.status(500).send("Failed to insert appliance");
@@ -101,21 +101,24 @@ const updateAppliance = async (req: Request, res: Response) => {
         }
 
         console.log("Updated appliance: ", dataToUpdate.appliance_name);
-        res.send(dataToUpdate);
+        res.status(200).json(dataToUpdate);
     } catch (error) {
         console.error(error);
         res.status(500).send("Failed to update appliance");
     }
 }
 
-//TODO: make this api returning two arrays(?) with the appliances and the rooms
 //GET: requires the profile_id and returns all the appliances associated with that profile
 const getApplianceOfUser = async (req: Request, res: Response) => {
+    let appliancesOfUser: any[] = [];
+    let roomsOfUser: any[] = [];
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
             .from('appliance')
             .select('*')
             .eq('profile_id', req.query.profile_id);
+
+        appliancesOfUser = data;
 
         if (error) {
             throw new Error(error.message);
@@ -129,16 +132,20 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
             .select('room')
             .eq('profile_id', req.query.profile_id)
         
-        
-        const uniqueValues = [...new Set(data.map((item: { room: any; }) => item.room))];
-        console.log(uniqueValues)
+        roomsOfUser = [...new Set(data.map((item: { room: any; }) => item.room))];
+        console.log(roomsOfUser)
         if (error) {
             throw new Error(error.message);
         }
-        res.status(200).json(uniqueValues);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     } 
+
+    const combinedJSON = {
+        appliances: appliancesOfUser,
+        rooms: roomsOfUser
+    }
+    res.status(200).json(combinedJSON);
 }
 
 export {getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser};
