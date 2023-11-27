@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import { env } from 'process';
 import {createClient} from '@supabase/supabase-js'
 import "../types/schema";
+import {z} from 'zod';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
 const supabaseKey = env.SUPABASE_KEY ?? "default_key";
@@ -10,11 +11,19 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 //GET: requires the appliance unique id and returns the associated row: id, profile_id, appliance_name, appliance_type and room
 const getAppliance = async (req: Request, res: Response) => {
+    const validation = z.number();
+    const id = Number(req.query.id);
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
             .from('appliance')
             .select('*')
-            .eq('id', req.query.id);
+            .eq('id', id);
 
         if (error) {
             throw new Error(error.message);
@@ -47,14 +56,31 @@ const insertAppliance = async (req: Request, res: Response) => {
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const profile_id = req.body.profile_id;
+    const room = req.body.room;
+
+    const validation = z.object({
+        appliance_type: z.string(),
+        appliance_name: z.string(),
+        profile_id: z.string(),
+        room: z.string()
+    });
+
+    const dataToInsert = {
+        appliance_type: appliance_type,
+        appliance_name: appliance_name,
+        profile_id: profile_id,
+        room: room
+    };
 
     try {
-        const dataToInsert = {
-            appliance_type: appliance_type,
-            appliance_name: appliance_name,
-            profile_id: profile_id
-        };
+        validation.parse(dataToInsert);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
 
+    try {
+        
         const tableName = 'appliance';
 
         const { data, error } = await supabaseClient
@@ -76,18 +102,42 @@ const insertAppliance = async (req: Request, res: Response) => {
 
 //POST: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
 const updateAppliance = async (req: Request, res: Response) => {
-    const id = req.body.id;
+    const id = Number(req.body.id);
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
+    const room = req.body.room;
     //const profile_id = req.body.profile_id;
 
-    try {
-        const dataToUpdate = {
-            appliance_type: appliance_type,
-            appliance_name: appliance_name,
-            //profile_id: profile_id
-        };
 
+    const validationid = z.number();
+    try {
+        validationid.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+    const validationToUpdate = z.object({
+        appliance_type: z.string().optional(),
+        appliance_name: z.string().optional(),
+        room: z.string().optional(),
+        //profile_id: z.string().optional()
+    });
+
+    const dataToUpdate = {
+        appliance_type: appliance_type,
+        appliance_name: appliance_name,
+        room: room
+        //profile_id: profile_id
+    };
+
+    try {
+        validationToUpdate.parse(dataToUpdate)
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
+    try {
         const tableName = 'appliance';
 
         const { data, error } = await supabaseClient
@@ -112,11 +162,20 @@ const updateAppliance = async (req: Request, res: Response) => {
 const getApplianceOfUser = async (req: Request, res: Response) => {
     let appliancesOfUser: any[] = [];
     let roomsOfUser: any[] = [];
+
+    const profile_id = req.query.profile_id;
+    const validation = z.string();
+    try {
+        validation.parse(profile_id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
     try {
         const { data, error }: { data: any, error: any } = await supabaseClient
             .from('appliance')
             .select('*')
-            .eq('profile_id', req.query.profile_id);
+            .eq('profile_id', profile_id);
 
         appliancesOfUser = data;
 

@@ -4,6 +4,7 @@ import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 import {createClient} from '@supabase/supabase-js'
 import {prompt, lightuserQuestion, poweruserQuestion, routinePrompt} from '../globalVariables';
 import { Database } from '../types/schema';
+import {z} from 'zod';
 
 const key = env.OPENAI_KEY ?? "default_key";
 const endpoint = "https://aui-openai.openai.azure.com/";
@@ -18,6 +19,12 @@ const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 const MESSAGE_LIMIT = 25;
 
 const retrieveChat = async (profile_id: string) => {
+  const validation = z.string();
+  try {
+    validation.parse(profile_id);
+  } catch (error) {
+    throw new Error("Invalid profile_id");
+  }
   try {
     const { data, error } = await supabaseClient
       .from('message')
@@ -35,6 +42,24 @@ const retrieveChat = async (profile_id: string) => {
 }
 
 const getAnswer = async (question:string, profile_id:string, isPower: boolean) => {
+  const validation = z.object({
+    question: z.string(),
+    profile_id: z.string(),
+    isPower: z.boolean(),
+  });
+
+  const dataToValidate = {
+    question: question,
+    profile_id: profile_id,
+    isPower: isPower,
+  };
+
+  try {
+    validation.parse(dataToValidate);
+  } catch (error) {
+    throw new Error("Invalid parameters.");
+  }
+
   const chatHistoryDB = await retrieveChat(profile_id); 
   let chat = [];
   chat.push(prompt);

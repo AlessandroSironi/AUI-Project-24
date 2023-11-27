@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express';
 import { env } from 'process';
 import {createClient} from '@supabase/supabase-js'
+import {z} from 'zod';
 import "../types/schema";
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
@@ -10,17 +11,29 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 //POST: insert a new routine, requires profile_id, routine_name, json(can be null) and returns the inserted data
 const insertRoutine = async (req: Request, res: Response) => {
+    const validation = z.object({
+        profile_id: z.string(),
+        routine_name: z.string(),
+        json: z.string().nullable()
+    });
     const profile_id = req.body.profile_id
     const routine_name = req.body.routine_name;
     const json = req.body.json;
 
-    try {
-        const dataToInsert = {
-            profile_id: profile_id,
-            routine_name: routine_name,
-            json: json
-        };
+    const dataToInsert = {
+        profile_id: profile_id,
+        routine_name: routine_name,
+        json: json
+    };
 
+    try {
+        validation.parse(dataToInsert);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
+    try {
         const tableName = 'routine';
 
         const { data, error } = await supabaseClient
@@ -42,18 +55,37 @@ const insertRoutine = async (req: Request, res: Response) => {
 
 //POST: update routine for the id specified, you can pass either a routine_name or a json or both, returns the updated data
 const updateRoutine = async (req: Request, res: Response) => {
-    const id = req.body.id;
+    const id = Number(req.body.id);
     //const profile_id = req.body.profile_id
     const routine_name = req.body.routine_name;
     const json = req.body.json;
 
+    const validationID = z.number();
     try {
-        const dataToUpdate = {
-            //profile_id: profile_id,
-            routine_name: routine_name,
-            json: json
-        };
+        validationID.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
 
+    const validation = z.object({
+        routine_name: z.string(),
+        json: z.string().nullable()
+    });
+
+    const dataToUpdate = {
+        routine_name: routine_name,
+        json: json
+    };
+
+    try {
+        validation.parse(dataToUpdate);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
+    try {
         const tableName = 'routine';
 
         const { data, error } = await supabaseClient
@@ -76,7 +108,15 @@ const updateRoutine = async (req: Request, res: Response) => {
 
 //POST: delete routine for the id specified
 const deleteRoutine = async (req: Request, res: Response) => {
-    const id = req.body.id;
+    const id = Number(req.body.id);
+
+    const validation = z.number();
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
     const tableName = 'routine';
     try{
         const { data, error } = await supabaseClient
