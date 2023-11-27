@@ -16,7 +16,7 @@ const insertRoutine = async (req: Request, res: Response) => {
         routine_name: z.string(),
         json: z.string().nullable()
     });
-    const profile_id = req.body.profile_id
+    const profile_id = req.body.profile_id;
     const routine_name = req.body.routine_name;
     const json = req.body.json;
 
