@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     },
     css: ['@/assets/styles/global.css'],
     supabase: {
-       redirectOptions: {
+        redirectOptions: {
             login: '/login',
             callback: '/confirm',
             exclude: ['/', '/signup'],
@@ -32,4 +32,5 @@ export default defineNuxtConfig({
             },
         },
     },
+    ssr: false,
 });

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import useTextFormatter from '~/composables/useTextFormatter';
+
 interface Props {
     isFromUser: boolean;
     messageContent: string;
@@ -11,7 +13,7 @@ const { isFromUser, messageContent, date } = defineProps<Props>();
 <template>
     <div class="bubble-container" :class="isFromUser ? 'flex-start' : 'flex-end'">
         <div class="bubble" :class="isFromUser ? 'bubble-style-user' : 'bubble-style-system'">
-            <p class="message-content"> {{ messageContent }} </p>
+            <p class="message-content" v-html="useTextFormatter(messageContent)"> </p>
             <span class="date-container" :class="isFromUser ? 'date-style-system' && 'flex-start' : 'date-style-user' && 'flex-end'">{{ date.toString() }}</span>
         </div>
     </div>
@@ -34,6 +36,10 @@ const { isFromUser, messageContent, date } = defineProps<Props>();
     padding: 1.2rem;
     width: 20rem;
     width: min(95%, 800px);
+}
+
+.message-content {
+    line-height: 1.6rem;
 }
 
 .bubble-style-system {
