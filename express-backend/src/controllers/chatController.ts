@@ -14,43 +14,25 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 // note that each message has a flag is_chatgpt to distinguish between messages sent by the user and messages sent by the chatbot
 // plus a is_routing flag is set to TRUE if the message contains a code for a json routine
 const retrieveChat = async (req: Request, res: Response) => {
-  const profile_id = req.query.profile_id;
-  const validation = z.string();
-  try {
-    validation.parse(profile_id);
-  } catch (error) {
-    res.status(400).json({ error: (error as Error).message });
-    return;
-  }
-  try {
-    const { data, error } = await supabaseClient
-      .from('message')
-      .select('*')
-      .eq('profile_id', profile_id)
-      .order('timestamp', { ascending: false })
-      .limit(MESSAGE_LIMIT);
-    if (data) {
-      const retrievedChat = data.reverse(); //TODO: make json for samu
-      res.send(retrievedChat);
-    } else {
-      throw new Error('Data is null: ' + error);
+    const profile_id = req.query.profile_id;
+    const validation = z.string();
+    try {
+        validation.parse(profile_id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
     }
     try {
-        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('id', { ascending: true });
-        //.limit(MESSAGE_LIMIT); // removed for debugging
+        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(MESSAGE_LIMIT);
         if (data) {
-            const retrievedChat = data; //TODO: make json for samu
-            res.send(data);
+            const retrievedChat = data.reverse(); //TODO: make json for samu
+            res.send(retrievedChat);
         } else {
-            throw new Error('Data is null');
+            throw new Error('Data is null: ' + error);
         }
     } catch (error) {
-        console.error('retrieveChatHistory error: ', error);
-        throw error;
+        throw new Error('Error in retrieveChat: ' + error);
     }
-  } catch (error) {
-    throw new Error("Error in retrieveChat: " + error);
-  }
-}
+};
 
 export { retrieveChat };
