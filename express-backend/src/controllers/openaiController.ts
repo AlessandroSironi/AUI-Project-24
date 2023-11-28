@@ -19,9 +19,22 @@ const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 const MESSAGE_LIMIT = 25;
 
 const retrieveChat = async (profile_id: string) => {
-    try {
-        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: true }).limit(MESSAGE_LIMIT);
 
+  try {
+    const { data, error } = await supabaseClient
+      .from('message')
+      .select('*')
+      .eq('profile_id', profile_id)
+      .order('timestamp', { ascending: false })
+      .limit(MESSAGE_LIMIT);
+
+      if (data) return data.reverse();
+      else throw new Error('Data is null');
+  } catch (error) {
+    console.error("retrieveChatHistory error: ", error);
+    throw error;
+  }
+}
         if (data) return data;
         else throw new Error('Data is null');
     } catch (error) {

@@ -9,19 +9,32 @@ const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-const MESSAGE_LIMIT = 25; //maybe 10 are enough
+const MESSAGE_LIMIT = 10; //maybe 10 are enough
 
 //GET: requires profile_id and returns all the chat history with LIMIT = 25 ordered by timestamp,
 // note that each message has a flag is_chatgpt to distinguish between messages sent by the user and messages sent by the chatbot
 // plus a is_routing flag is set to TRUE if the message contains a code for a json routine
 const retrieveChat = async (req: Request, res: Response) => {
-    const profile_id = req.query.profile_id;
-    const validation = z.string();
-    try {
-        validation.parse(profile_id);
-    } catch (error) {
-        res.status(400).json({ error: (error as Error).message });
-        return;
+  const profile_id = req.query.profile_id;
+  const validation = z.string();
+  try {
+    validation.parse(profile_id);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+    return;
+  }
+  try {
+    const { data, error } = await supabaseClient
+      .from('message')
+      .select('*')
+      .eq('profile_id', profile_id)
+      .order('timestamp', { ascending: false })
+      .limit(MESSAGE_LIMIT);
+    if (data) {
+      const retrievedChat = data.reverse(); //TODO: make json for samu
+      res.send(retrievedChat);
+    } else {
+      throw new Error('Data is null');
     }
     try {
         const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('id', { ascending: true });
