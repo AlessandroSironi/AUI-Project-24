@@ -4,7 +4,6 @@
  */
 
 const useTextFormatter = (text: string) => {
-    console.log(text);
     return text.replaceAll('\n', '<br/>');
 };
 

@@ -75,6 +75,7 @@ const { displayName, applianceType } = defineProps<Props>();
 @media screen and (width < 767px) {
     .appliance-card-container {
         width: auto;
+        min-width: 10ch;
     }
 }
 </style>

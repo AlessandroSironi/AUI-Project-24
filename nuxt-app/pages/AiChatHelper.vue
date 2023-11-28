@@ -20,6 +20,7 @@ interface Message {
 const config = useRuntimeConfig();
 const newMessage = ref('');
 const userID = useSupabaseUser().value?.id;
+const isMessagesLoading = ref(false);
 
 // helper function to scroll at the end of the chat
 const scrollToEnd = () => {
@@ -28,7 +29,7 @@ const scrollToEnd = () => {
     const targetElement = document.getElementById('chatBlock');
     if (targetElement) {
         const anchor = targetElement.children[targetElement.children.length - 1];
-        if (anchor !== undefined) anchor.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+        if (anchor !== undefined) anchor.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     }
 };
 
@@ -41,7 +42,6 @@ const {
     data: messages,
     error,
     pending,
-    refresh: fetchMessagesAgain,
 } = await useFetch<Message[]>(config.public.baseURL + '/api/chat/retrieveChat', {
     query: {
         profile_id: userID,
@@ -50,7 +50,7 @@ const {
 
 // POST: send a new message and retreve the response
 const sendMessage = async () => {
-    console.log('new message received from child: ', newMessage.value);
+    isMessagesLoading.value = true;
     if (newMessage.value !== '' && userID) {
         const contentToSend = newMessage.value;
         if (messages.value !== null) {
@@ -87,7 +87,7 @@ const sendMessage = async () => {
         setTimeout(() => {
             scrollToEnd();
         }, 100);
-        //scrollToEnd();
+        isMessagesLoading.value = false;
     }
 };
 </script>
@@ -99,7 +99,7 @@ const sendMessage = async () => {
             <div class="message" v-for="message in messages">
                 <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
             </div>
-            <div class="loading" v-if="pending">loading</div>
+            <MessageLoader v-if="pending || isMessagesLoading" />
             <!---<div class="user-input-container"><ChatUserInput @send-message="sendMessage" /></div>-->
         </div>
         <div class="user-textarea-container">
@@ -132,11 +132,6 @@ const sendMessage = async () => {
     overflow-y: scroll;
     gap: 1.2rem;
     margin-bottom: 1rem;
-}
-
-.anchor {
-    overflow-anchor: auto;
-    height: 1px;
 }
 
 .user-textarea-container {
