@@ -1,11 +1,11 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response } from 'express';
 import { env } from 'process';
-import {createClient} from '@supabase/supabase-js'
-import "../types/schema";
-import {z} from 'zod';
+import { createClient } from '@supabase/supabase-js';
+import '../types/schema';
+import { z } from 'zod';
 
-const supabaseUrl = env.SUPABASE_PROJECT ?? "default_url";
-const supabaseKey = env.SUPABASE_KEY ?? "default_key";
+const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
+const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
@@ -20,10 +20,7 @@ const getAppliance = async (req: Request, res: Response) => {
         return;
     }
     try {
-        const { data, error }: { data: any, error: any } = await supabaseClient
-            .from('appliance')
-            .select('*')
-            .eq('id', id);
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*').eq('id', id);
 
         if (error) {
             throw new Error(error.message);
@@ -32,15 +29,12 @@ const getAppliance = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //GET: returns all the appliance types: it's an array of jsons with the following fields: id, type
 const getApplianceTypes = async (req: Request, res: Response) => {
     try {
-        const { data, error }: { data: any, error: any } = await supabaseClient
-            .from('appliance_type')
-            .select('*')
-            .order('type', { ascending: true });
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance_type').select('*').order('type', { ascending: true });
 
         if (error) {
             throw new Error(error.message);
@@ -49,27 +43,27 @@ const getApplianceTypes = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
     const appliance_type = Number(req.body.appliance_type);
     const appliance_name = req.body.appliance_name;
-    const profile_id = req.body.profile_id;
+    const profile_id = req.query.profile_id;
     const room = req.body.room;
 
     const validation = z.object({
         appliance_type: z.number(),
         appliance_name: z.string(),
         profile_id: z.string(),
-        room: z.string()
+        room: z.string(),
     });
 
     const dataToInsert = {
         appliance_type: appliance_type,
         appliance_name: appliance_name,
         profile_id: profile_id,
-        room: room
+        room: room,
     };
 
     try {
@@ -80,25 +74,22 @@ const insertAppliance = async (req: Request, res: Response) => {
     }
 
     try {
-        
         const tableName = 'appliance';
 
-        const { data, error } = await supabaseClient
-            .from(tableName)
-            .insert(dataToInsert);
+        const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
 
         if (error) {
-            console.log("Error: ", error);
-            throw new Error("Failed to insert appliance");
+            console.log('Error: ', error);
+            throw new Error('Failed to insert appliance');
         }
 
-        console.log("Inserted appliance: ", dataToInsert.appliance_name);
+        console.log('Inserted appliance: ', dataToInsert.appliance_name);
         res.status(200).json(dataToInsert);
     } catch (error) {
         console.error(error);
-        res.status(500).send("Failed to insert appliance");
+        res.status(500).send('Failed to insert appliance');
     }
-}
+};
 
 //POST: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
 const updateAppliance = async (req: Request, res: Response) => {
@@ -106,8 +97,6 @@ const updateAppliance = async (req: Request, res: Response) => {
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const room = req.body.room;
-    //const profile_id = req.body.profile_id;
-
 
     const validationid = z.number();
     try {
@@ -126,12 +115,12 @@ const updateAppliance = async (req: Request, res: Response) => {
     const dataToUpdate = {
         appliance_type: appliance_type,
         appliance_name: appliance_name,
-        room: room
+        room: room,
         //profile_id: profile_id
     };
 
     try {
-        validationToUpdate.parse(dataToUpdate)
+        validationToUpdate.parse(dataToUpdate);
     } catch (error) {
         res.status(400).json({ error: (error as Error).message });
         return;
@@ -140,23 +129,20 @@ const updateAppliance = async (req: Request, res: Response) => {
     try {
         const tableName = 'appliance';
 
-        const { data, error } = await supabaseClient
-            .from(tableName)
-            .update(dataToUpdate)
-            .eq('id', id);
+        const { data, error } = await supabaseClient.from(tableName).update(dataToUpdate).eq('id', id);
 
         if (error) {
-            console.log("Error: ", error);
-            throw new Error("Failed to update appliance");
+            console.log('Error: ', error);
+            throw new Error('Failed to update appliance');
         }
 
-        console.log("Updated appliance: ", dataToUpdate.appliance_name);
+        console.log('Updated appliance: ', dataToUpdate.appliance_name);
         res.status(200).json(dataToUpdate);
     } catch (error) {
         console.error(error);
-        res.status(500).send("Failed to update appliance");
+        res.status(500).send('Failed to update appliance');
     }
-}
+};
 
 //GET: requires the profile_id and returns all the appliances associated with that profile
 const getApplianceOfUser = async (req: Request, res: Response) => {
@@ -172,10 +158,7 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
         return;
     }
     try {
-        const { data, error }: { data: any, error: any } = await supabaseClient
-            .from('appliance')
-            .select('*')
-            .eq('profile_id', profile_id);
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*').eq('profile_id', profile_id);
 
         appliancesOfUser = data;
 
@@ -185,26 +168,23 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-    try{
-        const { data, error }: { data: any, error: any } = await supabaseClient
-            .from('appliance')
-            .select('room')
-            .eq('profile_id', req.query.profile_id)
-        
-        roomsOfUser = [...new Set(data.map((item: { room: any; }) => item.room))];
-        console.log(roomsOfUser)
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('room').eq('profile_id', req.query.profile_id);
+
+        roomsOfUser = [...new Set(data.map((item: { room: any }) => item.room))];
+        console.log(roomsOfUser);
         if (error) {
             throw new Error(error.message);
         }
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
-    } 
+    }
 
     const combinedJSON = {
         appliances: appliancesOfUser,
-        rooms: roomsOfUser
-    }
+        rooms: roomsOfUser,
+    };
     res.status(200).json(combinedJSON);
-}
+};
 
-export {getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser};
+export { getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser };

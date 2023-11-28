@@ -1,19 +1,32 @@
 <script setup lang="ts">
 /**
+ * !IMPORTANT : THIS COMPONENT IS UNUSED,
+ * MUST BE REMOVED IN THE END IF NOT USED
+ *
+ *
  * TODO: implement the function for the backend and
  * a "fashion function" to auto-resize the input
  */
+
+const newMessage = ref('');
+
+const emit = defineEmits(['send-message']);
+
+const sendMessage = () => {
+    newMessage.value = '';
+    emit('send-message', newMessage.value);
+};
 </script>
 
 <template>
     <div class="user-textarea-container">
-        <textarea class="user-textarea" cols="100" rows="1"> </textarea>
-        <button class="send-button">
+        <textarea class="user-textarea" cols="100" rows="1" v-model="newMessage"> </textarea>
+        <button class="send-button" @click="sendMessage">
             <Icon name="material-symbols-light:send" color="white" size="2rem" />
         </button>
     </div>
     <div>
-        <p class="disclaimer-text"> ChatGPT can make mistakes. Consider checking important information. </p>
+        <p class="disclaimer-text"> OpenAI model can make mistakes. Consider checking important information. </p>
     </div>
 </template>
 

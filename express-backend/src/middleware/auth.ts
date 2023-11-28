@@ -20,7 +20,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
             // get the uid from the token
             const uidFromToken = decryptedToken.sub;
             // get the uid from the request body
-            const uidFromBody = req.body.uid;
+            const uidFromBody = req.query.profile_id;
 
             // if the uids are equals we exit from the middleware and access the function's controller
             if (uidFromBody === uidFromToken) {
