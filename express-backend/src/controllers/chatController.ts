@@ -2,14 +2,13 @@ import express, { Request, Response } from 'express';
 import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
-import '../types/schema';
+import { Database } from '../types/schema';
+import { MESSAGE_LIMIT } from '../globalVariables';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-const MESSAGE_LIMIT = 10; //maybe 10 are enough
 
 //GET: requires profile_id and returns all the chat history with LIMIT = 25 ordered by timestamp,
 // note that each message has a flag is_chatgpt to distinguish between messages sent by the user and messages sent by the chatbot
@@ -34,7 +33,7 @@ const retrieveChat = async (req: Request, res: Response) => {
       const retrievedChat = data.reverse(); //TODO: make json for samu
       res.send(retrievedChat);
     } else {
-      throw new Error('Data is null');
+      throw new Error('Data is null: ' + error);
     }
     try {
         const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('id', { ascending: true });
@@ -49,5 +48,9 @@ const retrieveChat = async (req: Request, res: Response) => {
         console.error('retrieveChatHistory error: ', error);
         throw error;
     }
-};
+  } catch (error) {
+    throw new Error("Error in retrieveChat: " + error);
+  }
+}
+
 export { retrieveChat };

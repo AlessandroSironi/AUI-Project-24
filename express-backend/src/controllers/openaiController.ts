@@ -4,6 +4,7 @@ import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { createClient } from '@supabase/supabase-js';
 import { prompt, lightuserQuestion, poweruserQuestion, routinePrompt } from '../globalVariables';
 import { Database } from '../types/schema';
+import { MESSAGE_LIMIT } from '../globalVariables';
 import { z } from 'zod';
 
 const key = env.OPENAI_KEY ?? 'default_key';
@@ -15,8 +16,6 @@ const version = '2023-07-01-preview';
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
-
-const MESSAGE_LIMIT = 25;
 
 const retrieveChat = async (profile_id: string) => {
 
@@ -34,13 +33,6 @@ const retrieveChat = async (profile_id: string) => {
     console.error("retrieveChatHistory error: ", error);
     throw error;
   }
-}
-        if (data) return data;
-        else throw new Error('Data is null');
-    } catch (error) {
-        console.error('retrieveChatHistory error: ', error);
-        throw error;
-    }
 };
 
 const getAnswer = async (question: string, profile_id: string, isPower: boolean) => {
