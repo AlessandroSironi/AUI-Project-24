@@ -1,5 +1,28 @@
 <script setup lang="ts">
 const filters: string[] = ['All appliances', 'Living room', 'Kitchen', 'Bedroom'];
+
+const config = useRuntimeConfig();
+const userID = useSupabaseUser().value?.id;
+
+interface Appliance {
+    id: number;
+    profile_id: string;
+    appliance_name: string;
+    appliance_type: number; //TODO: fix type with string after backend
+    room: string;
+}
+
+interface APIBody {
+    appliances: Appliance[];
+    rooms: string[];
+}
+
+// GET: retrieve chat on page enter
+const { data, error, pending } = await useFetch<APIBody>(config.public.baseURL + '/api/appliance/getApplianceOfUser', {
+    query: {
+        profile_id: userID,
+    },
+});
 </script>
 
 <template>
@@ -10,11 +33,15 @@ const filters: string[] = ['All appliances', 'Living room', 'Kitchen', 'Bedroom'
             <div class="filter" v-for="filter in filters">{{ filter }}</div>
         </div>
         <div class="appliances-card-group">
-            <ApplianceCard display-name="Smart Light HUE 1" appliance-type="Light" />
+            <div class="appliance-card" v-for="appliance in data?.appliances">
+                <ApplianceCard :display-name="appliance.appliance_name" appliance-type="AirConditioner" />
+            </div>
+
+            <!-- <ApplianceCard display-name="Smart Light HUE 1" appliance-type="Light" />
             <ApplianceCard display-name="Air Conditioner" appliance-type="AirConditioner" />
             <ApplianceCard display-name="Smart TV 1" appliance-type="TV" />
             <ApplianceCard display-name="Refrigerator" appliance-type="Refrigerator" />
-            <ApplianceCard display-name="Microwave" appliance-type="Microwave" />
+            <ApplianceCard display-name="Microwave" appliance-type="Microwave" /> -->
         </div>
     </div>
 </template>
@@ -43,7 +70,7 @@ const filters: string[] = ['All appliances', 'Living room', 'Kitchen', 'Bedroom'
 @media screen and (width < 767px) {
     .appliances-card-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(25ch, 1fr));
     }
 }
 </style>
