@@ -158,7 +158,7 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
         return;
     }
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*').eq('profile_id', profile_id);
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*, appliance_type(type)').eq('profile_id', profile_id);
 
         appliancesOfUser = data;
 
