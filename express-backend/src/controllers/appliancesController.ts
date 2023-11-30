@@ -158,8 +158,10 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
         return;
     }
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*').eq('profile_id', profile_id);
-
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*, appliance_type(type)').eq('profile_id', profile_id);
+        for (const item of data) {
+            item['appliance_type'] = item['appliance_type']['type'];
+        }
         appliancesOfUser = data;
 
         if (error) {
