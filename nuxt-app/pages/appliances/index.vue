@@ -1,16 +1,8 @@
 <script setup lang="ts">
-const filters: string[] = ['All appliances', 'Living room', 'Kitchen', 'Bedroom'];
+import { type Appliance } from '../../types/appliance';
 
 const config = useRuntimeConfig();
 const userID = useSupabaseUser().value?.id;
-
-interface Appliance {
-    id: number;
-    profile_id: string;
-    appliance_name: string;
-    appliance_type: number; //TODO: fix type with string after backend
-    room: string;
-}
 
 interface APIBody {
     appliances: Appliance[];
@@ -30,13 +22,13 @@ const { data, error, pending } = await useFetch<APIBody>(config.public.baseURL +
     <div class="main">
         <h2 class="page-title">Add and edit your appliances</h2>
         <div class="filter-group">
-            <div class="filter" v-for="filter in filters">{{ filter }}</div>
+            <div class="filter" v-for="filter in data?.rooms">{{ filter }}</div>
         </div>
         <div class="appliances-card-group">
             <div class="appliance-card" v-for="appliance in data?.appliances">
-                <ApplianceCard :display-name="appliance.appliance_name" appliance-type="AirConditioner" />
+                <ApplianceCard :appliance="appliance" />
             </div>
-
+            <NewApplianecCard />
             <!-- <ApplianceCard display-name="Smart Light HUE 1" appliance-type="Light" />
             <ApplianceCard display-name="Air Conditioner" appliance-type="AirConditioner" />
             <ApplianceCard display-name="Smart TV 1" appliance-type="TV" />
@@ -59,6 +51,16 @@ const { data, error, pending } = await useFetch<APIBody>(config.public.baseURL +
 .filter-group {
     display: flex;
     gap: 2rem;
+}
+
+.filter {
+    color: var(--grey-2);
+    cursor: pointer;
+}
+
+.filter:hover {
+    color: var(--black-1);
+    text-decoration: underline;
 }
 
 .appliances-card-group {

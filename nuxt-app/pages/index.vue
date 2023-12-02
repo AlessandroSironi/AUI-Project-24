@@ -10,7 +10,6 @@ navigateTo('/AIChatHelper');
 </script>
 
 <template>
-    <Header title="index" />
     <div class="main">
         <p>Message: {{ res.data.value }}</p>
     </div>
