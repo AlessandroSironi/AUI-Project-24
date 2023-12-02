@@ -6,14 +6,18 @@ interface Props {
 }
 
 const { appliance } = defineProps<Props>();
-console.log('appliance is:', appliance);
 </script>
 
 <template>
     <div class="center-container">
         <div class="top-box">
-            <p class="display-name">Display Name</p>
-            <p class="appliance-name">{{ appliance.appliance_name }}</p>
+            <div class="icon">
+                <Icon :name="useApplianceTypeIcon(appliance.appliance_type)" size="3rem" />
+            </div>
+            <div class="info-box">
+                <p class="display-name">Display Name</p>
+                <p class="appliance-name">{{ appliance.appliance_name }}</p>
+            </div>
         </div>
         <div class="columns">
             <div class="left-column">
@@ -51,14 +55,25 @@ console.log('appliance is:', appliance);
 }
 .top-box {
     background-color: black;
-    padding: 10px;
+    padding: 1rem;
     width: 60%;
     border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    p {
+        margin: 0.2rem;
+    }
 }
 .display-name {
     color: var(--green-1);
     font-size: 12px;
 }
+.icon {
+    color: var(--white-1);
+}
+
 .appliance-name {
     color: white;
     font-size: 18px;

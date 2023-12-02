@@ -21,9 +21,7 @@ const getAppliance = async (req: Request, res: Response) => {
     }
     try {
         const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('*,appliance_type(type)').eq('id', id).single();
-        for (const item of data) {
-            item['appliance_type'] = item['appliance_type']['type'];
-        }
+        data['appliance_type'] = data['appliance_type']['type'];
 
         if (error) {
             throw new Error(error.message);
