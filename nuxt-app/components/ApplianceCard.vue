@@ -9,13 +9,17 @@ const { appliance } = defineProps<Props>();
 </script>
 
 <template>
+    
     <div class="appliance-card-container">
         <Icon :name="useApplianceTypeIcon(appliance.appliance_type)" size="2.5rem" class="appliance-card-icon" />
         <div class="appliance-card-name">{{ appliance.appliance_name }}</div>
         <div class="appliance-edit-button">
-            <Icon name="material-symbols:edit" size="1.5rem" class="appliance-edit-button-icon" />
+            <NuxtLink :to="'/appliances/' + displayName">
+                <Icon name="material-symbols:edit" size="1.5rem" class="appliance-edit-button-icon" />
+            </NuxtLink>
         </div>
     </div>
+    
 </template>
 
 <style scoped>
@@ -35,6 +39,7 @@ const { appliance } = defineProps<Props>();
         font-weight: 500;
         font-size: 1.1rem;
         word-wrap: break-word;
+        
     }
     .appliance-card-icon {
         color: var(--black-1);
