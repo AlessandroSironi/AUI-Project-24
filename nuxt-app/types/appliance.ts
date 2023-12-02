@@ -4,4 +4,6 @@ export type Appliance = {
     appliance_name: string;
     appliance_type: string;
     room: string;
+    brand: string;
+    avg_consumption: number;
 };
