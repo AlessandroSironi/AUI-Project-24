@@ -48,11 +48,33 @@ const getApplianceTypes = async (req: Request, res: Response) => {
     }
 };
 
+//DELETE: requires the appliance unique id and deletes the associated row
+const deleteAppliance = async (req: Request, res: Response) => {
+    const id = Number(req.query.id);
+    const validation = z.number();
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').delete().eq('id', id);
+        if (error) {
+            throw new Error(error.message);
+        }
+        console.log('Deleted appliance');
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+}
+
 //POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
     const appliance_type = Number(req.body.appliance_type);
     const appliance_name = req.body.appliance_name;
-    const profile_id = req.query.profile_id;
+    const profile_id = req.body.profile_id;
     const room = req.body.room;
 
     const validation = z.object({
@@ -94,7 +116,7 @@ const insertAppliance = async (req: Request, res: Response) => {
     }
 };
 
-//POST: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
+//PUT: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
 const updateAppliance = async (req: Request, res: Response) => {
     const id = Number(req.body.id);
     const appliance_type = req.body.appliance_type;
@@ -192,4 +214,4 @@ const getApplianceOfUser = async (req: Request, res: Response) => {
     res.status(200).json(combinedJSON);
 };
 
-export { getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser };
+export { getAppliance, getApplianceTypes, insertAppliance, updateAppliance, getApplianceOfUser, deleteAppliance };
