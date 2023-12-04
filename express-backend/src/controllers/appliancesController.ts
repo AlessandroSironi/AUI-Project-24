@@ -50,7 +50,7 @@ const getApplianceTypes = async (req: Request, res: Response) => {
 
 //DELETE: requires the appliance unique id and deletes the associated row
 const deleteAppliance = async (req: Request, res: Response) => {
-    const id = Number(req.query.id);
+    const id = Number(req.params.id);
     const validation = z.number();
     try {
         validation.parse(id);
@@ -118,7 +118,7 @@ const insertAppliance = async (req: Request, res: Response) => {
 
 //PUT: update appliance for the id specified, you can pass either a appliance_type, appliance_name or both, returns the updated data
 const updateAppliance = async (req: Request, res: Response) => {
-    const id = Number(req.body.id);
+    const id = Number(req.params.id);
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const room = req.body.room;

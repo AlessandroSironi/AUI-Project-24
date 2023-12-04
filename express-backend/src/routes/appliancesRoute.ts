@@ -7,9 +7,9 @@ const router = express.Router();
 router.get('/getAppliance', getAppliance);
 router.get('/getApplianceTypes', getApplianceTypes);
 router.post('/insertAppliance', insertAppliance);
-router.put('/updateAppliance', updateAppliance);
+router.put('/updateAppliance/:id', updateAppliance);
 router.get('/getApplianceOfUser', getApplianceOfUser);
-router.delete('/deleteAppliance', deleteAppliance);
+router.delete('/deleteAppliance/:id', deleteAppliance);
 
 
 
