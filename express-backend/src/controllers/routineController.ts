@@ -37,12 +37,6 @@ const insertRoutine = async (req: Request, res: Response) => {
         const tableName = 'routine';
 
         const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
-
-        if (error) {
-            console.log('Error: ', error);
-            throw new Error('Failed to insert routine');
-        }
-
         console.log('Inserted routine: ', dataToInsert.routine_name);
         res.send(dataToInsert);
     } catch (error) {
