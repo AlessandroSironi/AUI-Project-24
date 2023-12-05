@@ -16,7 +16,6 @@ const version = '2023-07-01-preview';
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
-const axios = require('axios');
 
 const retrieveChat = async (profile_id: string) => {
 
