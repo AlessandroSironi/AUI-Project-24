@@ -80,7 +80,6 @@ const createAutomation = async (req: Request, res: Response) => {
         });
         const apiResponseJson = await apiResponse.json();
         console.log('response is:', apiResponseJson);
-        res.send({ 'message from home assistant: ': apiResponseJson });
     } catch (err) {
         console.log(err);
         res.status(500).send('Something went wrong');
