@@ -35,10 +35,23 @@ const retrieveChat = async (profile_id: string) => {
   }
 };
 
+async function personalize_prompt(id: string) {
+    let personalized_prompt = prompt;
+    const { data, error } = await supabaseClient.from('profiles').select('username').eq('id', id).single();
+    const username = data?.username ?? '';
+    console.log("Retrieved username: " + username);
+    personalized_prompt.content = personalized_prompt.content.replace('USERNAME', username);
+    console.log("Personalized prompt: " + personalized_prompt.content)
+    return personalized_prompt;
+}
+
 const getAnswer = async (question: string, profile_id: string, isPower: boolean, wantRoutine: boolean) => {
     const chatHistoryDB = await retrieveChat(profile_id);
     let chat = [];
-    chat.push(prompt);
+    let prompt_personalized = await personalize_prompt(profile_id);
+    console.log("Personalized prompt IN GET ANSWER" + prompt_personalized.content)
+    chat.push(prompt_personalized);
+
     let list_appliances = [];
     try {
         const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('id, appliance_name, appliance_type, room, brand, avg_consumption, appliance_type(type)').eq('profile_id', profile_id);
@@ -96,7 +109,8 @@ function checkIfRoutine(chatgptAnswer: string): boolean {
 }
 
 function extractYAMLString(chatgptAnswer: string): string {
-    const match = chatgptAnswer.match(/```yaml([\s\S]*?)```/);
+    /* const match = chatgptAnswer.match(/```yaml([\s\S]*?)```/); */
+    const match = chatgptAnswer.match(/```([\s\S]*?)```/);
 
     if (match && match[1]) {
         return match[1].trim();
