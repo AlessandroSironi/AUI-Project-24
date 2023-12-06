@@ -73,7 +73,7 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean,
     else
         chat.push({
             role: 'user',
-            content: question,
+            content: lightuserQuestion + question,
         });
     let yaml = '';
     try {
