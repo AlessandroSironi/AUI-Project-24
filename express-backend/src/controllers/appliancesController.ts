@@ -134,7 +134,7 @@ const updateAppliance = async (req: Request, res: Response) => {
         room: z.string().optional(),
         //profile_id: z.string().optional()
     });
-
+    
     const dataToUpdate = {
         appliance_type: appliance_type,
         appliance_name: appliance_name,
@@ -148,6 +148,14 @@ const updateAppliance = async (req: Request, res: Response) => {
         res.status(400).json({ error: (error as Error).message });
         return;
     }
+
+    let appliance_type_num;
+    try {
+        appliance_type_num = await supabaseClient.from('appliance_type').select('id').eq('type', appliance_type).single();
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+    if (appliance_type_num) dataToUpdate.appliance_type = appliance_type_num.data?.id;
 
     try {
         const tableName = 'appliance';

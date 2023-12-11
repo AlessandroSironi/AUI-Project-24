@@ -35,33 +35,64 @@ const retrieveChat = async (profile_id: string) => {
   }
 };
 
+async function personalize_prompt(id: string) {
+    let personalized_prompt = prompt;
+    const { data, error } = await supabaseClient.from('profiles').select('username').eq('id', id).single();
+    const username = data?.username ?? '';
+    //console.log("Retrieved username: " + username);
+    personalized_prompt.content = personalized_prompt.content.replace('USERNAME', username);
+    //console.log("Personalized prompt: " + personalized_prompt.content)
+    return personalized_prompt;
+}
+
 const getAnswer = async (question: string, profile_id: string, isPower: boolean) => {
     const chatHistoryDB = await retrieveChat(profile_id);
     let chat = [];
-    chat.push(prompt);
+    let prompt_personalized = await personalize_prompt(profile_id);
+    //console.log("Personalized prompt IN GET ANSWER" + prompt_personalized.content)
+    chat.push(prompt_personalized);
+
+    let list_appliances = [];
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('appliance').select('id, appliance_name, appliance_type, room, brand, avg_consumption, appliance_type(type)').eq('profile_id', profile_id);
+        for (const item of data) {
+            item['appliance_type'] = item['appliance_type']['type'];
+            list_appliances.push(JSON.stringify(item));
+        }
+        //list_appliances = JSON.stringify(data);
+    } catch (error) {
+        console.error('Error: ', error);
+    }
+    //console.log('list_appliances: ' + list_appliances);
 
     for (const message of chatHistoryDB) {
-        console.log('message:' + message.message);
+        //console.log('message:' + message.message);
         chat.push({
             role: message.is_chatgpt ? 'system' : 'user',
             content: message.message,
         });
     }
+    const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
+    
     if (isPower)
         chat.push({
             role: 'user',
-            content: routinePrompt + question,
+            content: poweruserQuestion + appliancesPrompt + question,
         });
     else
         chat.push({
             role: 'user',
-            content: question,
+            content: lightuserQuestion + question,
         });
-
+    let yaml = '';
     try {
         const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 } /* , { apiVersion: version } */);
         for (const choice of result.choices) {
-            if (choice.message) console.log(`Chatbot: ${choice.message.content}`);
+            if (choice.message) {
+                console.log(`Chatbot: ${choice.message.content}`);
+                //console.log(result.choices.length);
+                yaml = extractYAMLString(choice.message.content?.toString() ?? '');
+            }
         }
         return result;
     } catch (error) {
@@ -71,6 +102,30 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean)
 
 function checkIfRoutine(chatgptAnswer: string): boolean {
     return chatgptAnswer.includes('ROUTINE'); //TODO: find unique pattern for json routines
+}
+
+function extractYAMLString(chatgptAnswer: string): string {
+    /* const match = chatgptAnswer.match(/```yaml([\s\S]*?)```/); */
+    const match = chatgptAnswer.match(/```([\s\S]*?)```/);
+
+    if (match && match[1]) {
+        return match[1].trim();
+    }
+
+    return 'null';
+}
+
+function extractYAMLName(chatgptAnswer: string): string {
+    const pattern = /alias:\s*(.*)/;
+    const match = chatgptAnswer.match(pattern);
+
+    let name = null;
+    if (match && match.length > 1) {
+        name = match[1].trim();
+        return name;
+    }
+
+    return 'null';
 }
 
 const saveMessage = async (profile_id: string, message: string, is_chatgpt: boolean, is_routine: boolean) => {
@@ -110,23 +165,50 @@ const openaiHandler = async (req: Request, res: Response) => {
         }
         let isPower = req.body.isPower;
         if (isPower == null) isPower = false;
+        
         console.log(`Request: ${userMessage}`);
 
         saveMessage(profile_id, userMessage, false, false);
 
-        const result = await getAnswer(userMessage, profile_id, req.body.isPower);
-
+        const result = await getAnswer(userMessage, profile_id, isPower);
+        let yaml = ''; // Declare the 'yaml' variable
+        let yamlName = '';
         if (result) {
+            for (const choice of result.choices) {
+                if (choice.message) {
+                    yaml = extractYAMLString(choice.message.content?.toString() ?? '');
+                    yamlName = extractYAMLName(yaml);
+                }
+            }
             const chatgptAnswer = result.choices[0].message?.content ?? 'chatgptAnswer';
             //console.log(chatgptAnswer);
 
             const isRoutine = checkIfRoutine(chatgptAnswer);
             saveMessage(profile_id, chatgptAnswer, true, isRoutine);
+
+            const dataToInsert = {
+                profile_id: profile_id,
+                routine_name: yamlName,
+                json: yaml,
+            };
+            insertRoutine(dataToInsert);
+
             res.send(chatgptAnswer);
         }
     } catch (error) {
         console.error('Error: ', error);
     }
+
 };
+
+const insertRoutine = async (dataToInsert: any) => {
+    try {
+        const tableName = 'routine';
+        const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
+        //console.log('Inserted routine: ', dataToInsert.routine_name);
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 export default openaiHandler;

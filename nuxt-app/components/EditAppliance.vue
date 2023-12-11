@@ -6,6 +6,40 @@ interface Props {
 }
 
 const { appliance } = defineProps<Props>();
+
+const config = useRuntimeConfig();
+const userID = useSupabaseUser().value?.id;
+const updateAppliance = async () => {
+    const { data, error, pending } = await useFetch<Appliance>(config.public.baseURL + `/api/appliance/updateAppliance/${appliance.id}`, {
+        method: 'PUT',
+        query: {
+            profile_id: userID,
+        },
+        body: {
+            appliance_type: appliance.appliance_type,
+            appliance_name: appliance.appliance_name,
+            room: appliance.room,
+            brand: appliance.brand,
+            avg_consumption: appliance.avg_consumption,
+        },
+    });
+    if (!error.value) {
+        console.log(data);
+    }
+};
+
+const deleteAppliance = async () => {
+    const { data, error, pending } = await useFetch<Appliance>(config.public.baseURL + `/api/appliance/deleteAppliance/${appliance.id}`, {
+        method: 'DELETE',
+        query: {
+            profile_id: userID,
+        },
+    });
+    if (!error.value) {
+        console.log(data);
+        navigateTo('/appliances');
+    }
+};
 </script>
 
 <template>
@@ -41,8 +75,8 @@ const { appliance } = defineProps<Props>();
             </div>
         </div>
         <div class="buttons">
-            <button class="remove-button" @click="">Remove device</button>
-            <button class="update-button" @click="">Update device</button>
+            <button class="remove-button" @click="deleteAppliance">Remove device</button>
+            <button class="update-button" @click="updateAppliance">Update device</button>
         </div>
     </div>
 </template>
@@ -131,6 +165,7 @@ const { appliance } = defineProps<Props>();
     color: white;
     border: none;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .update-button {
@@ -140,6 +175,7 @@ const { appliance } = defineProps<Props>();
     color: black;
     border: none;
     font-weight: bold;
+    cursor: pointer;
 }
 
 @media only screen and (width < 767px) {
@@ -163,6 +199,7 @@ const { appliance } = defineProps<Props>();
         margin-top: 20px;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between;
     }
     .power-input-text {
         border: none;
