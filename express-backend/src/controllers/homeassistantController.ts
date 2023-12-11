@@ -1,5 +1,5 @@
-import {Request, Response} from 'express';
-import {env} from 'process';
+import { Request, Response } from 'express';
+import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
@@ -10,7 +10,6 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 const token = env.HOMEASSISTANT_TOKEN;
 
 const checkHomeAssistant = async (req: Request, res: Response) => {
-    
     // bearer token must be passed to authorize user in home-assistant APIs
     let headers = new Headers({ Authorization: `Bearer ${token}` });
     try {
@@ -27,37 +26,24 @@ const checkHomeAssistant = async (req: Request, res: Response) => {
 };
 
 const createAutomation = async (req: Request, res: Response) => {
-     // TODO: mock automation fields, fields must be coherent with home-assistant API
-     /* const automation = {
-        alias: 'Turn On Office Lights at 10:30 PM',
-        trigger: [
-            {
-                platform: 'time',
-                at: '22:30:00',
-            },
-        ],
-        action: [
-            {
-                service: 'scene.turn_on',
-                entity_id: 'scene.office_light',
-            },
-        ],
-    }; */
-
     const automation = req.body.automation;
     const profile_id = req.body.profile_id;
 
     //Parse with zod and validate that automation is a JSON object
     const automationSchema = z.object({
         alias: z.string(),
-        trigger: z.array(z.object({
-            platform: z.string(),
-            at: z.string(),
-        })),
-        action: z.array(z.object({
-            service: z.string(),
-            entity_id: z.string(),
-        })),
+        trigger: z.array(
+            z.object({
+                platform: z.string(),
+                at: z.string(),
+            })
+        ),
+        action: z.array(
+            z.object({
+                service: z.string(),
+                entity_id: z.string(),
+            })
+        ),
     });
 
     try {
@@ -122,4 +108,4 @@ function uuidv4() {
     });
 }
 
-export {checkHomeAssistant, createAutomation}
+export { checkHomeAssistant, createAutomation };

@@ -18,21 +18,15 @@ const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 
 const retrieveChat = async (profile_id: string) => {
+    try {
+        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(MESSAGE_LIMIT);
 
-  try {
-    const { data, error } = await supabaseClient
-      .from('message')
-      .select('*')
-      .eq('profile_id', profile_id)
-      .order('timestamp', { ascending: false })
-      .limit(MESSAGE_LIMIT);
-
-      if (data) return data.reverse();
-      else throw new Error('Data is null');
-  } catch (error) {
-    console.error("retrieveChatHistory error: ", error);
-    throw error;
-  }
+        if (data) return data.reverse();
+        else throw new Error('Data is null');
+    } catch (error) {
+        console.error('retrieveChatHistory error: ', error);
+        throw error;
+    }
 };
 
 async function personalize_prompt(id: string) {
@@ -73,7 +67,7 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean)
         });
     }
     const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
-    
+
     if (isPower)
         chat.push({
             role: 'user',
@@ -165,7 +159,7 @@ const openaiHandler = async (req: Request, res: Response) => {
         }
         let isPower = req.body.isPower;
         if (isPower == null) isPower = false;
-        
+
         console.log(`Request: ${userMessage}`);
 
         saveMessage(profile_id, userMessage, false, false);
@@ -193,12 +187,16 @@ const openaiHandler = async (req: Request, res: Response) => {
             };
             insertRoutine(dataToInsert);
 
-            res.send(chatgptAnswer);
+            const response = {
+                message: chatgptAnswer,
+                is_routine: isRoutine,
+            };
+
+            res.send(response);
         }
     } catch (error) {
         console.error('Error: ', error);
     }
-
 };
 
 const insertRoutine = async (dataToInsert: any) => {
@@ -209,6 +207,6 @@ const insertRoutine = async (dataToInsert: any) => {
     } catch (error) {
         console.error(error);
     }
-}
+};
 
 export default openaiHandler;
