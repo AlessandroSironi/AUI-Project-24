@@ -195,9 +195,11 @@ const deleteAppliance = async () => {
     }
     .columns {
         display: flex;
-        justify-content: space-between;
-        width: 90%;
+        width: 100%;
         margin-top: 20px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
     }
     .power-input-text {
         border: none;
