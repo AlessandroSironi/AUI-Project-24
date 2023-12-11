@@ -144,40 +144,41 @@ const { appliance } = defineProps<Props>();
 
 @media only screen and (width < 767px) {
     .top-box {
-    display: flex;
-    background-color: black;
-    padding: 1rem;
-    width: 80%;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+        display: flex;
+        background-color: black;
+        padding: 1rem;
+        width: 80%;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
 
         p {
             margin: 0.2rem;
         }
     }
     .columns {
-    display: flex;
-    justify-content: space-between;
-    width: 90%;
-    margin-top: 20px;
+        display: flex;
+        width: 100%;
+        margin-top: 20px;
+        flex-direction: column;
+        align-items: center;
     }
     .power-input-text {
-    border: none;
-    border-bottom: 1px solid #888888;
-    background: none;
-    padding: none;
-    width: 80%;
-    margin-right: 5px;
+        border: none;
+        border-bottom: 1px solid #888888;
+        background: none;
+        padding: none;
+        width: 80%;
+        margin-right: 5px;
     }
 
     .power-input-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-between;
-    flex-direction: row;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+        flex-direction: row;
     }
 }
 </style>
