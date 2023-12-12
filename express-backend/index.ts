@@ -36,6 +36,9 @@ app.use('/api/routine', routineRouter);
 import homeassistantRouter from './src/routes/homeassistantRoute';
 app.use('/api/homeassistant', homeassistantRouter);
 
+import userRouter from './src/routes/userRoute';
+app.use('/api/user', userRouter);
+
 app.listen(port, () => {
     console.log(`Now listening on port ${port}`);
 });

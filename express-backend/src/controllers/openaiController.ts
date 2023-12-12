@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { createClient } from '@supabase/supabase-js';
-import { prompt, lightuserQuestion, poweruserQuestion, routinePrompt } from '../globalVariables';
+import { prompt, lightuserQuestion, poweruserQuestion, routinePrompt, explanationPrompt } from '../globalVariables';
 import { Database } from '../types/schema';
 import { MESSAGE_LIMIT } from '../globalVariables';
 import { z } from 'zod';
@@ -68,16 +68,20 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean)
     }
     const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
 
-    if (isPower)
+    if (isPower){
         chat.push({
             role: 'user',
             content: poweruserQuestion + appliancesPrompt + question,
         });
-    else
+        //console.log("power user answer");
+    }
+    else {
         chat.push({
             role: 'user',
-            content: lightuserQuestion + question,
+            content: lightuserQuestion + explanationPrompt + question,
         });
+        //console.log("light user answer");
+    }
     let yaml = '';
     try {
         const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 } /* , { apiVersion: version } */);
@@ -147,7 +151,7 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 const openaiHandler = async (req: Request, res: Response) => {
     try {
         const userMessage = req.body.message;
-        const profile_id = req.query.profile_id as string;
+        const profile_id = req.body.profile_id as string;
         const validationMessage = z.string();
         const validationProfileID = z.string();
         try {
