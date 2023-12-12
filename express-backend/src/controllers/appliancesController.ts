@@ -66,7 +66,7 @@ const deleteAppliance = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
@@ -120,6 +120,8 @@ const updateAppliance = async (req: Request, res: Response) => {
     const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const room = req.body.room;
+    const avg_consumption = req.body.avg_consumption;
+    const brand = req.body.brand;
 
     const validationid = z.number();
     try {
@@ -132,14 +134,16 @@ const updateAppliance = async (req: Request, res: Response) => {
         appliance_type: z.string().optional(),
         appliance_name: z.string().optional(),
         room: z.string().optional(),
-        //profile_id: z.string().optional()
+        avg_consumption: z.number().optional(),
+        brand: z.string().optional(),
     });
-    
+
     const dataToUpdate = {
         appliance_type: appliance_type,
         appliance_name: appliance_name,
         room: room,
-        //profile_id: profile_id
+        avg_consumption: avg_consumption,
+        brand: brand,
     };
 
     try {
