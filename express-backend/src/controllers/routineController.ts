@@ -123,4 +123,21 @@ const deleteRoutine = async (req: Request, res: Response) => {
     }
 };
 
-export { insertRoutine, updateRoutine, deleteRoutine };
+//this is just a test: this api is not required
+const getRoutine = async (req: Request, res: Response) => {
+    const id = req.query.id;
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from("routine").select("json").eq('id', id);
+        res.status(200).json(data);
+        let automation = {};
+        automation = data[0].json;
+        console.log(automation);
+        const variableType = typeof automation;
+        console.log(variableType);
+    }
+    catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+}
+
+export { insertRoutine, updateRoutine, deleteRoutine, getRoutine };
