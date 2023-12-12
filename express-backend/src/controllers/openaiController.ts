@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, response } from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { createClient } from '@supabase/supabase-js';
@@ -73,8 +73,10 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean)
         });
     }
     const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
-    
-    if (isPower==true){
+    //console.log(isPower);
+    //const variableType = typeof isPower;
+    //console.log(variableType);
+    if (isPower){
         chat.push({
             role: 'user',
             content: poweruserQuestion + appliancesPrompt + question,
@@ -144,7 +146,7 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 
         const tableName = 'message';
 
-        const { data, error } = await supabaseClient.from(tableName).upsert([dataToInsert]);
+        const { data, error } = await supabaseClient.from(tableName).upsert(dataToInsert);
         if (error) console.log('Error: ', error);
         //console.log("Saved message: ", dataToInsert.message);
     } catch (error) {
@@ -175,29 +177,33 @@ const openaiHandler = async (req: Request, res: Response) => {
         saveMessage(profile_id, userMessage, false, false);
 
         const result = await getAnswer(userMessage, profile_id, isPower);
+        
         let yaml = ''; // Declare the 'yaml' variable
         let yamlName = '';
         if (result) {
-            for (const choice of result.choices) {
-                if (choice.message) {
-                    yaml = extractYAMLString(choice.message.content?.toString() ?? '');
-                    yamlName = extractYAMLName(yaml);
-                }
-            }
             const chatgptAnswer = result.choices[0].message?.content ?? 'chatgptAnswer';
-            //console.log(chatgptAnswer);
-
             const isRoutine = checkIfRoutine(chatgptAnswer);
+            
+            if(isRoutine){
+                yaml = extractYAMLString(chatgptAnswer.toString() ?? '');
+                yamlName = extractYAMLName(yaml);
+                const dataToInsert = {
+                    profile_id: profile_id,
+                    routine_name: yamlName,
+                    json: yaml,
+                };
+                insertRoutine(dataToInsert);
+            }
+            
             saveMessage(profile_id, chatgptAnswer, true, isRoutine);
-
-            const dataToInsert = {
-                profile_id: profile_id,
-                routine_name: yamlName,
-                json: yaml,
-            };
-            insertRoutine(dataToInsert);
-
-            res.send(chatgptAnswer);
+            //const variableType = typeof chatgptAnswer;
+            //console.log(variableType);
+            const responseData = {
+                message: chatgptAnswer,
+                yaml: yaml,
+                yamlName: yamlName,
+            }
+            res.send(responseData);
         }
     } catch (error) {
         console.error('Error: ', error);

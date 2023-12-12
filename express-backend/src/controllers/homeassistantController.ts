@@ -44,9 +44,12 @@ const createAutomation = async (req: Request, res: Response) => {
         ],
     }; */
 
-    const automation = req.body.automation;
+    const idRoutine = req.body.idRoutine;
     const profile_id = req.body.profile_id;
 
+    const { data, error }: { data: any; error: any } = await supabaseClient.from("routine").select("json").eq('id', idRoutine);
+    
+    const automation = data[0].json;
     //Parse with zod and validate that automation is a JSON object
     const automationSchema = z.object({
         alias: z.string(),
@@ -105,13 +108,13 @@ const createAutomation = async (req: Request, res: Response) => {
         return;
     }
 
-    // Save the routine in the database
-    try {
+    // We already save the routine in the openaiController, so we don't need to save it here
+    /* try {
         const tableName = 'routine';
         const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
     } catch (error) {
         res.status(400).json({ error: (error as Error).message });
-    }
+    } */
 };
 
 function uuidv4() {
