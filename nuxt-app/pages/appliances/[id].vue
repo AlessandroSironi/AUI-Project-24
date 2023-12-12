@@ -23,7 +23,7 @@ console.log(appliance);
 <template>
     <Header title="Edit Appliance" :is-action-button-enabled="false" />
     <div>
-        <p class="info-text"> Edit the information for {{ id }} </p>
+        <p class="info-text"> Edit the information for {{ appliance?.appliance_name }} </p>
         <div v-if="pending">...</div>
         <EditAppliance v-else v-if="appliance" class="edit-appliance" :appliance="appliance" />
     </div>

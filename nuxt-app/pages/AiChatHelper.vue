@@ -17,6 +17,11 @@ interface Message {
     timestamp: string;
 }
 
+interface ResponseBody {
+    message: string;
+    is_routine: boolean;
+}
+
 const config = useRuntimeConfig();
 const newMessage = ref('');
 const userID = useSupabaseUser().value?.id;
@@ -64,7 +69,7 @@ const sendMessage = async () => {
         //scrollToEnd();
 
         newMessage.value = '';
-        const { data: responseContent, error } = await useFetch<string>(config.public.baseURL + '/api/openai/openaiHandler', {
+        const { data: responseContent, error } = await useFetch<ResponseBody>(config.public.baseURL + '/api/openai/openaiHandler', {
             method: 'POST',
             query: {
                 profile_id: userID,
@@ -80,8 +85,9 @@ const sendMessage = async () => {
         }
 
         if (messages.value !== null && responseContent.value !== null) {
-            const responseMessage = { id: 2, profile_id: userID, message: responseContent.value, is_chatgpt: true, is_routine: false, timestamp: new Date().toString() };
+            const responseMessage = { id: 2, profile_id: userID, message: responseContent.value.message, is_chatgpt: true, is_routine: responseContent.value.is_routine, timestamp: new Date().toString() };
             messages.value.push(responseMessage);
+            console.log('messages: ', responseMessage);
         }
 
         setTimeout(() => {
@@ -90,14 +96,21 @@ const sendMessage = async () => {
         isMessagesLoading.value = false;
     }
 };
+
+const saveRoutine = () => {
+    console.log('save the routine');
+};
 </script>
 
 <template>
     <Header title="EcoMate" :is-action-button-enabled="true" />
     <div class="main">
         <div class="chat-container" id="chatBlock">
-            <div class="message" v-for="message in messages">
-                <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
+            <div class="message-wrapper" v-for="message in messages">
+                <div class="message">
+                    <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
+                </div>
+                <RoutineButton class="routine-button-wrapper" v-if="message.is_routine" @func="saveRoutine" />
             </div>
             <MessageLoader v-if="pending || isMessagesLoading" />
             <!---<div class="user-input-container"><ChatUserInput @send-message="sendMessage" /></div>-->
@@ -132,6 +145,10 @@ const sendMessage = async () => {
     overflow-y: scroll;
     gap: 1.2rem;
     margin-bottom: 1rem;
+}
+
+.routine-button-wrapper {
+    margin: 0.8rem 0rem;
 }
 
 .user-textarea-container {
