@@ -26,12 +26,11 @@ const checkHomeAssistant = async (req: Request, res: Response) => {
 };
 
 const createAutomation = async (req: Request, res: Response) => {
-
-    const automation = req.body.automation;
     const profile_id = req.body.profile_id;
+    const idRoutine = req.body.routine_id;
 
-    const { data, error }: { data: any; error: any } = await supabaseClient.from("routine").select("json").eq('id', idRoutine);
-    
+    const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', idRoutine);
+
     const automation = data[0].json;
     //Parse with zod and validate that automation is a JSON object
     const automationSchema = z.object({
