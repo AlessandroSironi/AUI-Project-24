@@ -7,14 +7,19 @@ const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
-const token = env.HOMEASSISTANT_TOKEN;
 
 const checkHomeAssistant = async (req: Request, res: Response) => {
+    //Retrieve token and url from supabase
+    const id = req.query.id;
+    const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_key, homeassistant_url').eq('id', id).single();
+    const token = data.homeassistant_key;
+    const url = data.homeassistant_url;
+    
     // bearer token must be passed to authorize user in home-assistant APIs
     let headers = new Headers({ Authorization: `Bearer ${token}` });
     try {
         console.log(env.HOMEASSISTANT_URL + '/api/');
-        const apiResponse = await fetch(env.HOMEASSISTANT_URL + '/api/', {
+        const apiResponse = await fetch(url + '/api/', {
             headers: headers,
         });
         const apiResponseJson = await apiResponse.json();
@@ -29,9 +34,16 @@ const createAutomation = async (req: Request, res: Response) => {
     const profile_id = req.body.profile_id;
     const idRoutine = req.body.routine_id;
 
-    const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', idRoutine);
-
-    const automation = data[0].json;
+    let automation = '';
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', idRoutine).single();
+        automation = data.json ?? 'ZIOPERA';
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Something went wrong');
+    }
+    /* const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', idRoutine);
+    const automation = data[0].json; */
     //Parse with zod and validate that automation is a JSON object
     const automationSchema = z.object({
         alias: z.string(),
@@ -58,11 +70,21 @@ const createAutomation = async (req: Request, res: Response) => {
     // we need to generate a unique identifier for the routine
     const id = uuidv4();
 
+    let token = '';
+    let url = '';
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_key, homeassistant_url').eq('id', profile_id).single();
+        token = data.homeassistant_key;
+        url = data.homeassistant_url;
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Something went wrong');
+    }
     let headers = new Headers({ Authorization: `Bearer ${token}` });
 
     try {
         // fetch POST the endpoint with the new ID in the params and the automation object as body
-        const apiResponse = await fetch(env.HOMEASSISTANT_URL + `/api/config/automation/config/${id}`, {
+        const apiResponse = await fetch(url + `/api/config/automation/config/${id}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(automation),
@@ -74,7 +96,7 @@ const createAutomation = async (req: Request, res: Response) => {
         res.status(500).send('Something went wrong');
     }
 
-    const dataToInsert = {
+    /* const dataToInsert = {
         profile_id: profile_id,
         routine_name: automation.alias,
         json: automation,
@@ -92,7 +114,7 @@ const createAutomation = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(400).json({ error: (error as Error).message });
         return;
-    }
+    } */
 
     // We already save the routine in the openaiController, so we don't need to save it here
     /* try {

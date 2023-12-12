@@ -38,14 +38,30 @@ const getHomeAssistantKey = async (req: Request, res: Response) => {
     }
 }
 
+const getHomeAssistantUrl = async (req: Request, res: Response) => {
+    const id = req.query.id;
+    try {
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_url').eq('id', id);
+
+        if (error) {
+            throw new Error(error.message);
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+}
+
 const updateProfile = async (req: Request, res: Response) => {
     const id = req.params.id;
     const username = req.body.username;
     const key = req.body.key;
+    const url = req.body.url;
 
     const dataToUpdate = {
         username: username,
-        homeassistant_key: key
+        homeassistant_key: key,
+        url: url
     }
     try {
         const { data, error } = await supabaseClient.from('profiles').update(dataToUpdate).eq('id', id);
@@ -62,4 +78,4 @@ const updateProfile = async (req: Request, res: Response) => {
 
 
 
-export { getUsername, getHomeAssistantKey, updateProfile };
+export { getUsername, getHomeAssistantKey, updateProfile, getHomeAssistantUrl};
