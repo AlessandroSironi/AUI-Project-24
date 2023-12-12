@@ -151,7 +151,7 @@ const saveMessage = async (profile_id: string, message: string, is_chatgpt: bool
 const openaiHandler = async (req: Request, res: Response) => {
     try {
         const userMessage = req.body.message;
-        const profile_id = req.body.profile_id as string;
+        const profile_id = req.query.profile_id as string;
         const validationMessage = z.string();
         const validationProfileID = z.string();
         try {
