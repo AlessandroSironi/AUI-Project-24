@@ -1,3 +1,4 @@
+import { Routine } from './../../../nuxt-app/types/routine';
 import express, { Request, Response } from 'express';
 import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
@@ -140,4 +141,26 @@ const getRoutine = async (req: Request, res: Response) => {
     }
 };
 
-export { insertRoutine, updateRoutine, deleteRoutine, getRoutine };
+// GET: get all routines of a certain user
+const getRoutines = async (req: Request, res: Response) => {
+    const profile_id = req.query.profile_id;
+    try {
+        const { data, error } = await supabaseClient.from('routine').select('routine_name, json').eq('profile_id', profile_id);
+        let routines: Routine[] = [];
+
+        data?.forEach((x) => {
+            let routine = {
+                routineName: x.routine_name,
+                routineJSON: x.json,
+            };
+
+            routines = [...routines, routine];
+        });
+        console.log(data);
+        res.status(200).json(routines);
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+};
+
+export { insertRoutine, updateRoutine, deleteRoutine, getRoutine, getRoutines };

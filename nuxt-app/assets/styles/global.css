@@ -16,7 +16,6 @@ body {
     margin: 0;
     scroll-behavior: smooth;
     min-width: 250px;
-    min-height: 600px;
     font-family: Roboto;
     background-color: var(--grey-1);
     width: 100%;

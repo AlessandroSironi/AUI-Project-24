@@ -140,7 +140,7 @@ const openaiHandler = async (req: Request, res: Response) => {
             return;
         }
 
-        console.log(`Request: ${userMessage}`);
+        //console.log(`Request: ${userMessage}`);
 
         saveMessage(profile_id, userMessage, false, false);
 
@@ -155,12 +155,11 @@ const openaiHandler = async (req: Request, res: Response) => {
             if (isRoutine) {
                 yaml = extractYAMLString(chatgptAnswer.toString() ?? '');
                 yamlName = extractYAMLName(yaml);
-                const dataToInsert = {
+                /* const dataToInsert = {
                     profile_id: profile_id,
                     routine_name: yamlName,
                     json: yaml,
-                };
-                insertRoutine(dataToInsert);
+                }; */
             }
 
             saveMessage(profile_id, chatgptAnswer, true, isRoutine);
@@ -173,6 +172,7 @@ const openaiHandler = async (req: Request, res: Response) => {
                 },
                 is_routine: isRoutine,
             };
+            console.log(responseData);
             res.send(responseData);
         }
     } catch (error) {
@@ -180,7 +180,7 @@ const openaiHandler = async (req: Request, res: Response) => {
     }
 };
 
-const insertRoutine = async (dataToInsert: any) => {
+/* const insertRoutine = async (dataToInsert: any) => {
     try {
         const tableName = 'routine';
         const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
@@ -188,6 +188,6 @@ const insertRoutine = async (dataToInsert: any) => {
     } catch (error) {
         console.error(error);
     }
-};
+}; */
 
 export default openaiHandler;

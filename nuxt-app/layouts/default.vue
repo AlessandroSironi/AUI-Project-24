@@ -28,7 +28,6 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
 .main-content {
     background-color: var(--white-2);
     flex-grow: 1;
-    width: min(100%, 900px);
     display: flex;
 }
 
@@ -36,6 +35,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 @media only screen and (width < 767px) {

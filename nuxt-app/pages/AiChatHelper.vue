@@ -101,6 +101,8 @@ const sendMessage = async () => {
                 console.log('is a routine');
                 console.log('message: ', responseMessage);
                 responseMessage.routine = responseContent.value.routine;
+                console.log(responseContent.value);
+                console.log(responseMessage.routine);
             }
 
             messages.value.push(responseMessage);
@@ -117,6 +119,8 @@ const sendMessage = async () => {
 const saveRoutine = async (routineName: string, routineJSON: string) => {
     console.log('save the routine: ', routineName);
     // POST: save in the db
+
+    if (routineName == '') return;
 
     const { data: idRoutine, error } = await useFetch<number>(config.public.baseURL + '/api/routine/insertRoutine', {
         method: 'POST',
@@ -143,9 +147,6 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
             routine_id: idRoutine.value,
         },
     });
-
-    if (homeAssistantError.value) console.log(error.value);
-    console.log(homeAssistantResponse.value);
 };
 </script>
 
@@ -163,7 +164,7 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
             <!---<div class="user-input-container"><ChatUserInput @send-message="sendMessage" /></div>-->
         </div>
         <div class="user-textarea-container">
-            <textarea class="user-textarea" cols="100" rows="1" v-model="newMessage"> </textarea>
+            <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage"> </textarea>
             <button class="send-button" @click.prevent="sendMessage">
                 <Icon name="material-symbols-light:send" color="white" size="2rem" />
             </button>
@@ -179,17 +180,13 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
     flex-direction: column;
     flex-grow: 1;
     overflow-y: scroll;
-    overflow-anchor: none;
-    .main * {
-        overflow-anchor: none;
-    }
 }
 
 .chat-container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow-y: scroll;
+    overflow-x: hidden;
     gap: 1.2rem;
     margin-bottom: 1rem;
 }
