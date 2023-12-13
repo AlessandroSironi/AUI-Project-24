@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DateType } from '../composables/useDateFormatter';
+import { type Routine } from '../types/routine';
 //TODO: need to modify, i have to update the client with the responses and not through the db (db only onMount)
 /**
  * TODO: implement the function for the backend and
@@ -22,11 +23,6 @@ interface ResponseBody {
     message: string;
     is_routine: boolean;
     routine?: Routine;
-}
-
-interface Routine {
-    routineName: string;
-    routineJSON: string;
 }
 
 const config = useRuntimeConfig();
@@ -117,8 +113,39 @@ const sendMessage = async () => {
     }
 };
 
-const saveRoutine = (routineName: string, routineJSON: string) => {
-    console.log('save the routine: ', routineName, ' - ', routineJSON);
+// POST: save routine in the db and upload it on home-assistant
+const saveRoutine = async (routineName: string, routineJSON: string) => {
+    console.log('save the routine: ', routineName);
+    // POST: save in the db
+
+    const { data: idRoutine, error } = await useFetch<number>(config.public.baseURL + '/api/routine/insertRoutine', {
+        method: 'POST',
+        query: {
+            profile_id: userID,
+        },
+        body: {
+            routine_name: routineName,
+            json: routineJSON,
+        },
+    });
+
+    if (error.value) console.log(error.value);
+
+    // now we are sure that the routine is saved
+    console.log(idRoutine.value);
+
+    const { data: homeAssistantResponse, error: homeAssistantError } = await useFetch(config.public.baseURL + '/api/homeassistant/createAutomation', {
+        method: 'POST',
+        query: {
+            profile_id: userID,
+        },
+        body: {
+            routine_id: idRoutine.value,
+        },
+    });
+
+    if (homeAssistantError.value) console.log(error.value);
+    console.log(homeAssistantResponse.value);
 };
 </script>
 

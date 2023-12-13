@@ -30,3 +30,16 @@ export function extractYAMLName(chatgptAnswer: string): string {
 
     return 'null';
 }
+
+export function cleanAutomationJSON(automation: string): string {
+    const match = automation.match(/\{[^]*\}/);
+
+    console.log(match);
+
+    if (!match) {
+        return automation;
+    }
+
+    automation = match[0];
+    return automation;
+}
