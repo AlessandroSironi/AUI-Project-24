@@ -6,6 +6,7 @@ import { prompt, poweruserQuestion, explanationPrompt } from '../globalVariables
 import { Database } from '../types/schema';
 import { MESSAGE_LIMIT } from '../globalVariables';
 import { z } from 'zod';
+import { checkIfRoutine, extractYAMLName, extractYAMLString } from '../helpers/parserModule';
 
 const key = env.OPENAI_KEY ?? 'default_key';
 const endpoint = 'https://aui-openai.openai.azure.com/';
@@ -17,9 +18,9 @@ const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 const supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
 
-const retrieveChat = async (profile_id: string) => {
+const retrieveChat = async (profile_id: string, messagesNumber: number) => {
     try {
-        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(MESSAGE_LIMIT);
+        const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(messagesNumber);
 
         if (data) return data.reverse();
         else throw new Error('Data is null');
@@ -40,7 +41,7 @@ async function personalize_prompt(id: string) {
 }
 
 const getAnswer = async (question: string, profile_id: string) => {
-    const chatHistoryDB = await retrieveChat(profile_id);
+    const chatHistoryDB = await retrieveChat(profile_id, 5);
     let chat = [];
     let prompt_personalized = await personalize_prompt(profile_id);
     //console.log("Personalized prompt IN GET ANSWER" + prompt_personalized.content)
@@ -67,14 +68,26 @@ const getAnswer = async (question: string, profile_id: string) => {
         });
     }
     const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
-  
-    
-    chat.push({
-        role: 'user',
-        content: poweruserQuestion + appliancesPrompt + explanationPrompt + question,
-    });
-   
-    
+
+    chat.push(
+        {
+            role: 'system',
+            content: explanationPrompt,
+        },
+        {
+            role: 'system',
+            content: appliancesPrompt,
+        },
+        {
+            role: 'system',
+            content: poweruserQuestion,
+        },
+        {
+            role: 'user',
+            content: question,
+        }
+    );
+
     let yaml = '';
     try {
         const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 } /* , { apiVersion: version } */);
@@ -90,41 +103,6 @@ const getAnswer = async (question: string, profile_id: string) => {
         console.error('getAnser error: ', error);
     }
 };
-
-function checkIfRoutine(chatgptAnswer: string): boolean {
-    return chatgptAnswer.includes('ROUTINE'); //TODO: find unique pattern for json routines
-}
-
-function extractYAMLString(chatgptAnswer: string): string {
-    /* const match = chatgptAnswer.match(/```yaml([\s\S]*?)```/); */
-    const match = chatgptAnswer.match(/```([\s\S]*?)```/);
-
-    if (match && match[1]) {
-        return match[1].trim();
-    }
-
-    return 'null';
-}
-
-function extractYAMLName(chatgptAnswer: string): string {
-    const pattern1 = /alias:\s*(.*)/;
-    const pattern2 = /"alias":\s*(.*)/;
-
-    const match1 = chatgptAnswer.match(pattern1);
-    const match2 = chatgptAnswer.match(pattern2);
-
-    let name = null;
-    if (match1 && match1.length > 1) {
-        name = match1[1].trim();
-        return name;
-    }
-    else if (match2 && match2.length > 1) {
-        name = match2[1].trim();
-        return name;
-    }
-    
-    return 'null';
-}
 
 const saveMessage = async (profile_id: string, message: string, is_chatgpt: boolean, is_routine: boolean) => {
     try {
@@ -167,14 +145,14 @@ const openaiHandler = async (req: Request, res: Response) => {
         saveMessage(profile_id, userMessage, false, false);
 
         const result = await getAnswer(userMessage, profile_id);
-        
+
         let yaml = ''; // Declare the 'yaml' variable
         let yamlName = '';
         if (result) {
             const chatgptAnswer = result.choices[0].message?.content ?? 'chatgptAnswer';
             const isRoutine = checkIfRoutine(chatgptAnswer);
-            
-            if(isRoutine){
+
+            if (isRoutine) {
                 yaml = extractYAMLString(chatgptAnswer.toString() ?? '');
                 yamlName = extractYAMLName(yaml);
                 const dataToInsert = {
@@ -184,17 +162,18 @@ const openaiHandler = async (req: Request, res: Response) => {
                 };
                 insertRoutine(dataToInsert);
             }
-            
+
             saveMessage(profile_id, chatgptAnswer, true, isRoutine);
-            //const variableType = typeof chatgptAnswer;
-            //console.log(variableType);
+
             const responseData = {
                 message: chatgptAnswer,
-                yaml: yaml,
-                yamlName: yamlName,
-            }
+                routine: {
+                    routineName: yamlName,
+                    routineJSON: yaml,
+                },
+                is_routine: isRoutine,
+            };
             res.send(responseData);
-
         }
     } catch (error) {
         console.error('Error: ', error);
