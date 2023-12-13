@@ -2,7 +2,7 @@ import express, { Request, Response, response } from 'express';
 import { env } from 'process';
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { createClient } from '@supabase/supabase-js';
-import { prompt, lightuserQuestion, poweruserQuestion, routinePrompt, explanationPrompt } from '../globalVariables';
+import { prompt, poweruserQuestion, explanationPrompt } from '../globalVariables';
 import { Database } from '../types/schema';
 import { MESSAGE_LIMIT } from '../globalVariables';
 import { z } from 'zod';
@@ -39,7 +39,7 @@ async function personalize_prompt(id: string) {
     return personalized_prompt;
 }
 
-const getAnswer = async (question: string, profile_id: string, isPower: boolean) => {
+const getAnswer = async (question: string, profile_id: string) => {
     const chatHistoryDB = await retrieveChat(profile_id);
     let chat = [];
     let prompt_personalized = await personalize_prompt(profile_id);
@@ -68,20 +68,13 @@ const getAnswer = async (question: string, profile_id: string, isPower: boolean)
     }
     const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
   
-    if (isPower){
-        chat.push({
-            role: 'user',
-            content: poweruserQuestion + appliancesPrompt + question,
-        });
-        //console.log("power user answer");
-    }
-    else {
-        chat.push({
-            role: 'user',
-            content: lightuserQuestion + explanationPrompt + question,
-        });
-        //console.log("light user answer");
-    }
+    
+    chat.push({
+        role: 'user',
+        content: poweruserQuestion + appliancesPrompt + explanationPrompt + question,
+    });
+   
+    
     let yaml = '';
     try {
         const result = await client.getChatCompletions(deploymentName, chat, { maxTokens: 512 } /* , { apiVersion: version } */);
@@ -114,15 +107,22 @@ function extractYAMLString(chatgptAnswer: string): string {
 }
 
 function extractYAMLName(chatgptAnswer: string): string {
-    const pattern = /alias:\s*(.*)/;
-    const match = chatgptAnswer.match(pattern);
+    const pattern1 = /alias:\s*(.*)/;
+    const pattern2 = /"alias":\s*(.*)/;
+
+    const match1 = chatgptAnswer.match(pattern1);
+    const match2 = chatgptAnswer.match(pattern2);
 
     let name = null;
-    if (match && match.length > 1) {
-        name = match[1].trim();
+    if (match1 && match1.length > 1) {
+        name = match1[1].trim();
         return name;
     }
-
+    else if (match2 && match2.length > 1) {
+        name = match2[1].trim();
+        return name;
+    }
+    
     return 'null';
 }
 
@@ -161,14 +161,12 @@ const openaiHandler = async (req: Request, res: Response) => {
             res.status(400).json({ error: (error as Error).message });
             return;
         }
-        let isPower = req.body.isPower;
-        if (isPower == null) isPower = false;
 
         console.log(`Request: ${userMessage}`);
 
         saveMessage(profile_id, userMessage, false, false);
 
-        const result = await getAnswer(userMessage, profile_id, isPower);
+        const result = await getAnswer(userMessage, profile_id);
         
         let yaml = ''; // Declare the 'yaml' variable
         let yamlName = '';
