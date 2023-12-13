@@ -36,15 +36,16 @@ const insertRoutine = async (req: Request, res: Response) => {
     try {
         const tableName = 'routine';
 
-        const { data, error } = await supabaseClient.from(tableName).insert(dataToInsert);
-        console.log('Inserted routine: ', dataToInsert.routine_name);
-        res.send(dataToInsert);
+        const { data: returnedRecord, error } = await supabaseClient.from(tableName).insert(dataToInsert).select('id').single();
+
+        res.status(200).json(returnedRecord?.id);
     } catch (error) {
         console.error(error);
         res.status(500).send('Failed to insert routine');
     }
 };
 
+// NB: UNUSED, also should be PUT
 //POST: update routine for the id specified, you can pass either a routine_name or a json or both, returns the updated data
 const updateRoutine = async (req: Request, res: Response) => {
     const id = Number(req.body.id);
@@ -127,17 +128,16 @@ const deleteRoutine = async (req: Request, res: Response) => {
 const getRoutine = async (req: Request, res: Response) => {
     const id = req.query.id;
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from("routine").select("json").eq('id', id);
+        const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', id);
         res.status(200).json(data);
         let automation = {};
         automation = data[0].json;
         console.log(automation);
         const variableType = typeof automation;
         console.log(variableType);
-    }
-    catch (error) {
+    } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 export { insertRoutine, updateRoutine, deleteRoutine, getRoutine };

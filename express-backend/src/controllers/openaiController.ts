@@ -67,7 +67,7 @@ const getAnswer = async (question: string, profile_id: string) => {
             content: message.message,
         });
     }
-    const appliancesPrompt = 'You have the following appliances: ' + list_appliances + '. ';
+    const appliancesPrompt = 'These are the users appliances: ' + list_appliances + '. ';
 
     chat.push(
         {
@@ -79,7 +79,7 @@ const getAnswer = async (question: string, profile_id: string) => {
             content: appliancesPrompt,
         },
         {
-            role: 'system',
+            role: 'user',
             content: poweruserQuestion,
         },
         {
