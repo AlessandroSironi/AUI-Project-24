@@ -40,33 +40,12 @@ const createAutomation = async (req: Request, res: Response) => {
         automation = data.json ?? 'ZIOPERA';
     } catch (error) {
         console.log(error);
-        res.status(500).send('Something went wrong');
+        res.status(500).send('Failed to create automation.');
     }
     /* const { data, error }: { data: any; error: any } = await supabaseClient.from('routine').select('json').eq('id', idRoutine);
     const automation = data[0].json; */
     //Parse with zod and validate that automation is a JSON object
-    const automationSchema = z.object({
-        alias: z.string(),
-        trigger: z.array(
-            z.object({
-                platform: z.string(),
-                at: z.string(),
-            })
-        ),
-        action: z.array(
-            z.object({
-                service: z.string(),
-                entity_id: z.string(),
-            })
-        ),
-    });
-
-    try {
-        automationSchema.parse(automation);
-    } catch (error) {
-        console.log(error);
-        res.status(400).send('Invalid automation object');
-    }
+    
     // we need to generate a unique identifier for the routine
     const id = uuidv4();
 
@@ -78,7 +57,7 @@ const createAutomation = async (req: Request, res: Response) => {
         url = data.homeassistant_url;
     } catch (error) {
         console.log(error);
-        res.status(500).send('Something went wrong');
+        res.status(500).send('Failed to retrieve Token and URL of Home Assistant.');
     }
     let headers = new Headers({ Authorization: `Bearer ${token}` });
 
@@ -89,8 +68,10 @@ const createAutomation = async (req: Request, res: Response) => {
             headers: headers,
             body: JSON.stringify(automation),
         });
+        console.log("JSON Sent: \n" + JSON.stringify(automation));
         const apiResponseJson = await apiResponse.json();
         console.log('response is:', apiResponseJson);
+        res.send({ 'message from home assistant: ': apiResponseJson });
     } catch (err) {
         console.log(err);
         res.status(500).send('Something went wrong');
