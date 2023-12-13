@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { Database } from '../types/schema';
 import { MESSAGE_LIMIT } from '../globalVariables';
+import { extractYAMLName, extractYAMLString } from '../helpers/parserModule';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
@@ -25,6 +26,17 @@ const retrieveChat = async (req: Request, res: Response) => {
     try {
         const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(MESSAGE_LIMIT);
         if (data) {
+            data.forEach((message) => {
+                if (message.is_routine == true) {
+                    const routineName = extractYAMLName(message.message);
+                    const routineJSON = extractYAMLString(message.message);
+
+                    message['routine'] = {
+                        routineName: routineName,
+                        routineJSON: routineJSON,
+                    };
+                }
+            });
             const retrievedChat = data.reverse(); //TODO: make json for samu
             res.send(retrievedChat);
         } else {

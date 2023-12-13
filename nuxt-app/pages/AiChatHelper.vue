@@ -15,11 +15,18 @@ interface Message {
     is_chatgpt: boolean;
     is_routine: boolean;
     timestamp: string;
+    routine?: Routine;
 }
 
 interface ResponseBody {
     message: string;
     is_routine: boolean;
+    routine?: Routine;
+}
+
+interface Routine {
+    routineName: string;
+    routineJSON: string;
 }
 
 const config = useRuntimeConfig();
@@ -66,7 +73,6 @@ const sendMessage = async () => {
         setTimeout(() => {
             scrollToEnd();
         }, 100);
-        //scrollToEnd();
 
         newMessage.value = '';
         const { data: responseContent, error } = await useFetch<ResponseBody>(config.public.baseURL + '/api/openai/openaiHandler', {
@@ -85,9 +91,23 @@ const sendMessage = async () => {
         }
 
         if (messages.value !== null && responseContent.value !== null) {
-            const responseMessage = { id: 2, profile_id: userID, message: responseContent.value.message, is_chatgpt: true, is_routine: responseContent.value.is_routine, timestamp: new Date().toString() };
+            const responseMessage: Message = {
+                id: 2,
+                profile_id: userID,
+                message: responseContent.value.message,
+                is_chatgpt: true,
+                is_routine: responseContent.value.is_routine,
+                timestamp: new Date().toString(),
+            };
+
+            // if the response is a routine set the routine fields
+            if (responseContent.value.is_routine) {
+                console.log('is a routine');
+                console.log('message: ', responseMessage);
+                responseMessage.routine = responseContent.value.routine;
+            }
+
             messages.value.push(responseMessage);
-            console.log('messages: ', responseMessage);
         }
 
         setTimeout(() => {
@@ -97,8 +117,8 @@ const sendMessage = async () => {
     }
 };
 
-const saveRoutine = () => {
-    console.log('save the routine');
+const saveRoutine = (routineName: string, routineJSON: string) => {
+    console.log('save the routine: ', routineName, ' - ', routineJSON);
 };
 </script>
 
@@ -110,7 +130,7 @@ const saveRoutine = () => {
                 <div class="message">
                     <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
                 </div>
-                <RoutineButton class="routine-button-wrapper" v-if="message.is_routine" @func="saveRoutine" />
+                <RoutineButton class="routine-button-wrapper" v-if="message.is_routine && message.routine !== undefined" @func="saveRoutine(message.routine?.routineName, message.routine?.routineJSON)" />
             </div>
             <MessageLoader v-if="pending || isMessagesLoading" />
             <!---<div class="user-input-container"><ChatUserInput @send-message="sendMessage" /></div>-->
