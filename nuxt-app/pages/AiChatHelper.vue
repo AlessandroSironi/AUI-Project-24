@@ -71,7 +71,7 @@ const {
 const sendMessage = async () => {
     //reset chat visuals
     isMessagesLoading.value = true;
-    homeAssistantError.value.error = false;
+    cleanWarning();
 
     if (newMessage.value !== '' && userID) {
         const contentToSend = newMessage.value;
@@ -196,7 +196,7 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
             <MessageLoader v-if="pending || isMessagesLoading" />
         </div>
         <div class="user-textarea-container">
-            <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage"> </textarea>
+            <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage" @keydown.enter.prevent="sendMessage"> </textarea>
             <button class="send-button" @click.prevent="sendMessage">
                 <Icon name="material-symbols-light:send" color="white" size="2rem" />
             </button>
