@@ -62,10 +62,20 @@ const createAutomation = async (req: Request, res: Response) => {
         try {
             // fetch POST the endpoint with the new ID in the params and the automation object as body
 
-            console.log(automation);
+            //console.log(automation);
             automation = cleanAutomationJSON(automation);
-            console.log(automation);
-            const bodyAutomation = JSON.parse(automation);
+            console.log('cleaned automation is: ', automation);
+
+            let bodyAutomation = automation;
+
+            try {
+                bodyAutomation = JSON.parse(automation);
+            } catch (error) {
+                console.log(error);
+                res.status(500).send({ message: 'could not parse the JSON' });
+                return;
+            }
+
             console.log(bodyAutomation);
 
             const apiResponse = await fetch(url + `/api/config/automation/config/${id}`, {

@@ -21,7 +21,6 @@ const { isFromUser, messageContent, date } = defineProps<Props>();
 
 <style scoped>
 .bubble-container {
-    width: 100%;
     display: flex;
 }
 
@@ -34,12 +33,12 @@ const { isFromUser, messageContent, date } = defineProps<Props>();
 }
 .bubble {
     padding: 1.2rem;
-    width: 20rem;
-    width: min(95%, 800px);
+    width: 90%;
 }
 
 .message-content {
     line-height: 1.6rem;
+    overflow-wrap: break-word;
 }
 
 .bubble-style-system {
