@@ -33,12 +33,13 @@ const { isFromUser, messageContent, date } = defineProps<Props>();
 }
 .bubble {
     padding: 1.2rem;
-    width: 90%;
+    width: min(90%, 900px);
 }
 
 .message-content {
     line-height: 1.6rem;
     overflow-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 .bubble-style-system {

@@ -25,20 +25,31 @@ interface ResponseBody {
     routine?: Routine;
 }
 
+interface HomeAssistantReply {
+    error: boolean;
+    message: string;
+}
+
 const config = useRuntimeConfig();
 const newMessage = ref('');
 const userID = useSupabaseUser().value?.id;
 const isMessagesLoading = ref(false);
 
+const homeAssistantError: Ref<HomeAssistantReply> = ref({ error: false, message: '' });
+
 // helper function to scroll at the end of the chat
 const scrollToEnd = () => {
-    //TODO: fix initianl behaviour (no children)
     // Access the DOM element of the target component
     const targetElement = document.getElementById('chatBlock');
     if (targetElement) {
         const anchor = targetElement.children[targetElement.children.length - 1];
         if (anchor !== undefined) anchor.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     }
+};
+
+const cleanWarning = () => {
+    homeAssistantError.value.error = false;
+    homeAssistantError.value.message = '';
 };
 
 onMounted(() => {
@@ -50,7 +61,7 @@ const {
     data: messages,
     error,
     pending,
-} = await useFetch<Message[]>(config.public.baseURL + '/api/chat/retrieveChat', {
+} = await useLazyFetch<Message[]>(config.public.baseURL + '/api/chat/retrieveChat', {
     query: {
         profile_id: userID,
     },
@@ -58,7 +69,10 @@ const {
 
 // POST: send a new message and retreve the response
 const sendMessage = async () => {
+    //reset chat visuals
     isMessagesLoading.value = true;
+    homeAssistantError.value.error = false;
+
     if (newMessage.value !== '' && userID) {
         const contentToSend = newMessage.value;
         if (messages.value !== null) {
@@ -136,9 +150,13 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
     if (error.value) console.log(error.value);
 
     // now we are sure that the routine is saved
-    console.log(idRoutine.value);
+    //console.log(idRoutine.value);
 
-    const { data: homeAssistantResponse, error: homeAssistantError } = await useFetch(config.public.baseURL + '/api/homeassistant/createAutomation', {
+    const {
+        data: homeAssistantResponse,
+        error: fetchError,
+        pending,
+    } = await useFetch<HomeAssistantReply>(config.public.baseURL + '/api/homeassistant/createAutomation', {
         method: 'POST',
         query: {
             profile_id: userID,
@@ -147,6 +165,15 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
             routine_id: idRoutine.value,
         },
     });
+
+    console.log(homeAssistantResponse.value);
+
+    if (homeAssistantResponse.value?.message) {
+        homeAssistantError.value = homeAssistantResponse?.value;
+        setTimeout(() => {
+            scrollToEnd();
+        }, 100);
+    }
 };
 </script>
 
@@ -158,10 +185,15 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
                 <div class="message">
                     <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
                 </div>
-                <RoutineButton class="routine-button-wrapper" v-if="message.is_routine && message.routine !== undefined" @func="saveRoutine(message.routine?.routineName, message.routine?.routineJSON)" />
+                <div class="message-buttons">
+                    <RoutineButton class="routine-button-wrapper" v-if="message.is_routine && message.routine !== undefined" @func="saveRoutine(message.routine?.routineName, message.routine?.routineJSON)" />
+                </div>
+            </div>
+            <div class="homeassistant-response" :class="homeAssistantError.error ? 'response-error' : 'response-ok'" v-if="homeAssistantError.message !== ''">
+                <span>{{ homeAssistantError.message }}</span>
+                <Icon name="charm:cross" size="2rem" class="cross-icon" @click="cleanWarning" />
             </div>
             <MessageLoader v-if="pending || isMessagesLoading" />
-            <!---<div class="user-input-container"><ChatUserInput @send-message="sendMessage" /></div>-->
         </div>
         <div class="user-textarea-container">
             <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage"> </textarea>
@@ -191,8 +223,38 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
     margin-bottom: 1rem;
 }
 
+.message-buttons {
+    display: flex;
+    gap: 2rem;
+}
+
 .routine-button-wrapper {
     margin: 0.8rem 0rem;
+}
+
+.homeassistant-response {
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.response-error {
+    background-color: rgb(245, 118, 118);
+    color: rgb(194, 42, 42);
+    border: 1px solid rgb(194, 42, 42);
+}
+
+.response-ok {
+    background-color: rgb(169, 244, 147);
+    color: rgb(67, 153, 40);
+    border: 1px solid rgb(67, 153, 40);
+}
+
+.cross-icon {
+    cursor: pointer;
 }
 
 .user-textarea-container {

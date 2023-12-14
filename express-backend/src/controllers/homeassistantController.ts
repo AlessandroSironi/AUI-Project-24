@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
 import { cleanAutomationJSON } from '../helpers/parserModule';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
@@ -9,6 +8,7 @@ const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
 
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+//TODO: remove or refactor it from the project, not useful for now and still uses .env incorrectly
 const checkHomeAssistant = async (req: Request, res: Response) => {
     //Retrieve token and url from supabase
     const id = req.query.id;
@@ -27,7 +27,7 @@ const checkHomeAssistant = async (req: Request, res: Response) => {
         res.send({ 'message from home assistant: ': apiResponseJson });
     } catch (err) {
         console.log(err);
-        res.status(500).send('Something went wrong');
+        res.status(500).send({ message: 'Something went wrong' });
     }
 };
 
@@ -45,7 +45,7 @@ const createAutomation = async (req: Request, res: Response) => {
         automation = data?.json;
     } catch (error) {
         console.log(error);
-        res.status(500).send('Failed to create automation.');
+        res.status(500).send({ error: true, message: 'Failed to create automation.' });
         return;
     }
 
@@ -72,29 +72,38 @@ const createAutomation = async (req: Request, res: Response) => {
                 bodyAutomation = JSON.parse(automation);
             } catch (error) {
                 console.log(error);
-                res.status(500).send({ message: 'could not parse the JSON' });
+                res.status(500).send({ error: true, message: 'could not parse the JSON' });
                 return;
             }
 
-            console.log(bodyAutomation);
+            //console.log(bodyAutomation);
 
             const apiResponse = await fetch(url + `/api/config/automation/config/${id}`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(bodyAutomation),
             });
-            console.log('JSON Sent: \n' + bodyAutomation);
+
+            const responseStatus: number = apiResponse.status;
             const apiResponseJson = await apiResponse.json();
-            console.log('response is:', apiResponseJson);
-            res.send({ 'message from home assistant: ': apiResponseJson });
+            const errorResponseMessage: string = apiResponseJson.message;
+
+            //console.log(apiResponseJson);
+
+            if (responseStatus !== 200) {
+                res.send({ error: true, message: `message from home assistant: ${errorResponseMessage}` });
+                return;
+            }
+
+            res.send({ error: false, message: 'Home-assistant uploaded the automation correctly' });
         } catch (err) {
             console.log(err);
-            res.status(500).json({ message: `Something went wrong with the request: ${err}` });
+            res.status(500).json({ error: true, message: `Something went wrong with the request: ${err}` });
             return;
         }
     } catch (error) {
         console.log(error);
-        res.status(500).send('Failed to retrieve Token and URL of Home Assistant.');
+        res.status(500).send({ error: true, message: 'Failed to retrieve Token and URL of Home Assistant.' });
         return;
     }
 };
