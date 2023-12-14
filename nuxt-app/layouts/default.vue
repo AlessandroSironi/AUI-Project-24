@@ -29,6 +29,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
     background-color: var(--white-2);
     flex-grow: 1;
     display: flex;
+    min-width: 0;
 }
 
 .main-content-wrapper {
