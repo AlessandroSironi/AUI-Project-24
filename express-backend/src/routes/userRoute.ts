@@ -7,6 +7,6 @@ const router = express.Router();
 router.get('/getUsername', getUsername);
 router.get('/getHomeAssistantKey', getHomeAssistantKey);
 router.get('/getHomeAssistantUrl', getHomeAssistantUrl);
-router.put('/updateUsername/:id', updateProfile);
+router.put('/updateProfile/:id', updateProfile);
 
 export default router;
