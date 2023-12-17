@@ -12,6 +12,14 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 //GET: requires the user unique id and returns the associated username
 const getUsername = async (req: Request, res: Response) => {
     const id = req.query.id;
+    const validation = z.string();
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+    
     try {
         const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('username').eq('id', id).single();
 
@@ -26,6 +34,14 @@ const getUsername = async (req: Request, res: Response) => {
 
 const getHomeAssistantKey = async (req: Request, res: Response) => {
     const id = req.query.id;
+    const validation = z.string();
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
     try {
         const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_key').eq('id', id);
 
@@ -40,6 +56,14 @@ const getHomeAssistantKey = async (req: Request, res: Response) => {
 
 const getHomeAssistantUrl = async (req: Request, res: Response) => {
     const id = req.query.id;
+    const validation = z.string();
+    try {
+        validation.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
     try {
         const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_url').eq('id', id);
 
@@ -58,11 +82,34 @@ const updateProfile = async (req: Request, res: Response) => {
     const key = req.body.key;
     const url = req.body.url;
 
+    const validationID = z.string();
+
+    try {
+        validationID.parse(id);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
+    const validationData = z.object({
+        username: z.string(),
+        homeassistant_key: z.string(),
+        homeassistant_url: z.string(),
+    });
+
     const dataToUpdate = {
         username: username,
         homeassistant_key: key,
-        url: url
+        homeassistant_url: url
     }
+
+    try {
+        validationData.parse(dataToUpdate);
+    } catch (error) {
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
+
     try {
         const { data, error } = await supabaseClient.from('profiles').update(dataToUpdate).eq('id', id);
 

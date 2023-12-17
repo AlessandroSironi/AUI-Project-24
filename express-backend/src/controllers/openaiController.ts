@@ -23,8 +23,8 @@ const retrieveChat = async (profile_id: string, messagesNumber: number) => {
         const { data, error } = await supabaseClient.from('message').select('*').eq('profile_id', profile_id).order('timestamp', { ascending: false }).limit(messagesNumber);
 
         if (data) {
-            console.log('-----------------');
-            console.log(data.reverse());
+            //console.log('-----------------');
+            //console.log(data.reverse());
             return data.reverse();
         } else throw new Error('Data is null');
     } catch (error) {
