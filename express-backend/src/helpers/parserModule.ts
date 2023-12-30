@@ -1,9 +1,15 @@
 export function checkIfRoutine(chatgptAnswer: string): boolean {
-    return chatgptAnswer.includes('ROUTINE'); //TODO: find unique pattern for json routines
+    if(chatgptAnswer.includes('```')) {
+        const routine = extractJSONString(chatgptAnswer);
+        const jsonData = JSON.parse(routine);
+        if (jsonData && jsonData.alias && jsonData.trigger && jsonData.action) return true;
+        else return false;
+    }
+    else return false;
 }
 
-export function extractYAMLString(chatgptAnswer: string): string {
-    /* const match = chatgptAnswer.match(/```yaml([\s\S]*?)```/); */
+// given the chat gpt answer retrieve the json code 
+export function extractJSONString(chatgptAnswer: string): string {
     const match = chatgptAnswer.match(/```([\s\S]*?)```/);
 
     if (match && match[1]) {
@@ -13,7 +19,7 @@ export function extractYAMLString(chatgptAnswer: string): string {
     return 'null';
 }
 
-export function extractYAMLName(chatgptAnswer: string): string {
+export function extractJSONName(chatgptAnswer: string): string {
     const pattern = /"alias":\s*"([^"]*)"/;  
 
     const match = chatgptAnswer.match(pattern);

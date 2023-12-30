@@ -32,6 +32,7 @@ const getUsername = async (req: Request, res: Response) => {
     }
 }
 
+//GET: return Home Assistant Key given unique user's id
 const getHomeAssistantKey = async (req: Request, res: Response) => {
     const id = req.query.id;
     const validation = z.string();
@@ -54,6 +55,7 @@ const getHomeAssistantKey = async (req: Request, res: Response) => {
     }
 }
 
+//GET: return Home Assistant url given unique user's id
 const getHomeAssistantUrl = async (req: Request, res: Response) => {
     const id = req.query.id;
     const validation = z.string();
@@ -76,6 +78,7 @@ const getHomeAssistantUrl = async (req: Request, res: Response) => {
     }
 }
 
+//PUT :update profile data, non specified parameters stay unchanged
 const updateProfile = async (req: Request, res: Response) => {
     const id = req.params.id;
     const username = req.body.username;

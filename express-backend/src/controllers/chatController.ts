@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { Database } from '../types/schema';
 import { MESSAGE_LIMIT } from '../globalVariables';
-import { extractYAMLName, extractYAMLString } from '../helpers/parserModule';
+import { extractJSONName, extractJSONString } from '../helpers/parserModule';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
@@ -28,8 +28,8 @@ const retrieveChat = async (req: Request, res: Response) => {
         if (data) {
             data.forEach((message) => {
                 if (message.is_routine == true) {
-                    const routineName = extractYAMLName(message.message);
-                    const routineJSON = extractYAMLString(message.message);
+                    const routineName = extractJSONName(message.message);
+                    const routineJSON = extractJSONString(message.message);
 
                     message['routine'] = {
                         routineName: routineName,
