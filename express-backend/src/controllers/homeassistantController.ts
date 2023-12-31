@@ -31,6 +31,7 @@ const checkHomeAssistant = async (req: Request, res: Response) => {
     }
 };
 
+// retrieve the JSON of the routine from supabase and send it to Home Assistant within the authetication token to create an automation for the user
 const createAutomation = async (req: Request, res: Response) => {
     const profile_id = req.query.profile_id;
     const idRoutine: number = req.body.routine_id;
