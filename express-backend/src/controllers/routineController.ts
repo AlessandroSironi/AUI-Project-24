@@ -4,6 +4,7 @@ import { env } from 'process';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import '../types/schema';
+import { cleanAutomationJSON } from '../helpers/parserModule';
 
 const supabaseUrl = env.SUPABASE_PROJECT ?? 'default_url';
 const supabaseKey = env.SUPABASE_KEY ?? 'default_key';
@@ -19,7 +20,10 @@ const insertRoutine = async (req: Request, res: Response) => {
     });
     const profile_id = req.query.profile_id;
     const routine_name = req.body.routine_name;
-    const json = req.body.json;
+    let json = req.body.json;
+
+    json = cleanAutomationJSON(json);
+    console.log("JSON CLEANED: ", json);
 
     const dataToInsert = {
         profile_id: profile_id,
