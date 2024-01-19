@@ -70,13 +70,13 @@ const deleteAppliance = async (req: Request, res: Response) => {
 
 //POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
-    const appliance_type = Number(req.body.appliance_type);
+    const appliance_type = req.body.appliance_type;
     const appliance_name = req.body.appliance_name;
     const profile_id = req.body.profile_id;
     const room = req.body.room;
 
     const validation = z.object({
-        appliance_type: z.number(),
+        appliance_type: z.string(),
         appliance_name: z.string(),
         profile_id: z.string(),
         room: z.string(),
@@ -88,6 +88,14 @@ const insertAppliance = async (req: Request, res: Response) => {
         profile_id: profile_id,
         room: room,
     };
+
+    let appliance_type_num;
+    try {
+        appliance_type_num = await supabaseClient.from('appliance_type').select('id').eq('type', appliance_type).single();
+    } catch (error) {
+        res.status(500).json({ error: (error as Error).message });
+    }
+    if (appliance_type_num) dataToInsert.appliance_type = appliance_type_num.data?.id;
 
     try {
         validation.parse(dataToInsert);
