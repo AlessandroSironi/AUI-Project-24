@@ -9,11 +9,45 @@ interface APIBody {
     rooms: string[];
 }
 
+const selectedRoom = ref('');
+
+const changeRoom = (room: string) => {
+    selectedRoom.value = room;
+};
+
 // GET: retrieve chat on page enter
-const { data, error, pending } = await useFetch<APIBody>(config.public.baseURL + '/api/appliance/getApplianceOfUser', {
+const { data, error, pending } = await useLazyFetch<APIBody>(config.public.baseURL + '/api/appliance/getApplianceOfUser', {
     query: {
         profile_id: userID,
     },
+});
+
+const filteredAppliances = computed(() => {
+    if (selectedRoom.value === '' || selectedRoom.value === 'All rooms') {
+        return data.value?.appliances;
+    }
+
+    let arr: Appliance[] = [];
+
+    const allAppliances = data.value?.appliances;
+    console.log(allAppliances);
+
+    if (allAppliances) {
+        for (let i = 0; i < allAppliances?.length; i++) {
+            if (selectedRoom.value === allAppliances[i].room) {
+                arr.push(allAppliances[i]);
+            }
+        }
+    }
+
+    return arr;
+});
+
+const rooms = computed(() => {
+    if (!data.value?.rooms.includes('All rooms')) {
+        data.value?.rooms.push('All rooms');
+    }
+    return data.value?.rooms;
 });
 </script>
 
@@ -22,18 +56,17 @@ const { data, error, pending } = await useFetch<APIBody>(config.public.baseURL +
     <div class="main">
         <h2 class="page-title">Add and edit your appliances</h2>
         <div class="filter-group">
-            <div class="filter" v-for="filter in data?.rooms">{{ filter }}</div>
+            <div class="filter" v-for="filter in rooms">
+                <span @click="changeRoom(filter)">
+                    {{ filter }}
+                </span>
+            </div>
         </div>
         <div class="appliances-card-group">
-            <div class="appliance-card" v-for="appliance in data?.appliances">
+            <div class="appliance-card" v-for="appliance in filteredAppliances">
                 <ApplianceCard :appliance="appliance" />
             </div>
             <NewApplianecCard />
-            <!-- <ApplianceCard display-name="Smart Light HUE 1" appliance-type="Light" />
-            <ApplianceCard display-name="Air Conditioner" appliance-type="AirConditioner" />
-            <ApplianceCard display-name="Smart TV 1" appliance-type="TV" />
-            <ApplianceCard display-name="Refrigerator" appliance-type="Refrigerator" />
-            <ApplianceCard display-name="Microwave" appliance-type="Microwave" /> -->
         </div>
     </div>
 </template>
