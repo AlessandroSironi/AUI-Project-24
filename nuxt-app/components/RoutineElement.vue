@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { Routine } from '~/types/routine';
 
+const config = useRuntimeConfig();
+const userID = useSupabaseUser().value?.id;
+
 interface Props {
     routine: Routine;
 }
@@ -13,6 +16,10 @@ const toggleAccordion = () => {
 };
 
 const { routine } = defineProps<Props>();
+
+const emit = defineEmits<{
+    (e: 'func'): void;
+}>();
 </script>
 
 <template>
@@ -20,6 +27,7 @@ const { routine } = defineProps<Props>();
         <div class="routine-container" :class="showJSON ? 'container-border' : ''">
             <span class="routine-name">Routine: {{ routine.routineName }}</span>
             <button class="show-button" @click="toggleAccordion">Inspect code <Icon class="icon" name="mingcute:code-fill" size="1.2rem" /></button>
+            <button class="delete-button" @click="$emit('func')">Delete Routine <Icon class="icon" name="ic:baseline-delete" size="1.2rem" /></button>
         </div>
         <div :class="!showJSON ? 'accordion' : 'show'">
             <pre>{{ routine.routineJSON }}</pre>
@@ -57,6 +65,24 @@ const { routine } = defineProps<Props>();
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
+}
+
+.delete-button {
+    padding: 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: var(--delete-2);
+    border: 2px solid var(--delete-1);
+    border-radius: 0.2rem;
+    color: var(--white-1);
+}
+
+.delete-button:hover {
+    background-color: var(--delete-1);
 }
 
 .accordion {

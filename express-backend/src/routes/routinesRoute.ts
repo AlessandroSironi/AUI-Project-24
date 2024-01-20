@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/insertRoutine', insertRoutine);
 router.post('/updateRoutine', updateRoutine);
-router.post('/deleteRoutine', deleteRoutine);
+router.delete('/deleteRoutine', deleteRoutine);
 router.get('/getRoutine', getRoutine);
 router.get('/getRoutines', getRoutines);
 

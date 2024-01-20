@@ -4,12 +4,16 @@
     --green-1: #7AE88D;
     --green-2: #49DD62;
     --black-1: #000000;
+    --red-1: #DC2626;
+    --red-2: #df4d4d;
     --grey-1: #323232;
     --grey-2: #888888;
     --grey-3: #474747;
     --text-1: var(--white-1);
     --text-2: var(--black-1);
     --text-3: var(--grey-2);
+    --delete-1: var(--red-1);
+    --delete-2: var(--red-2);
 }
 
 body {

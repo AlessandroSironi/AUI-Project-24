@@ -23,7 +23,7 @@ const insertRoutine = async (req: Request, res: Response) => {
     let json = req.body.json;
 
     json = cleanAutomationJSON(json);
-    console.log("JSON CLEANED: ", json);
+    console.log('JSON CLEANED: ', json);
 
     const dataToInsert = {
         profile_id: profile_id,
@@ -103,7 +103,8 @@ const updateRoutine = async (req: Request, res: Response) => {
 
 //POST: delete routine for the id specified
 const deleteRoutine = async (req: Request, res: Response) => {
-    const id = Number(req.body.id);
+    const id = Number(req.query.id);
+    console.log('id: ', id);
 
     const validation = z.number();
     try {
@@ -121,7 +122,7 @@ const deleteRoutine = async (req: Request, res: Response) => {
             throw new Error('Failed to delete routine');
         }
 
-        console.log('Deleted routine');
+        //console.log('Deleted routine');
         res.send(data);
     } catch (error) {
         console.error(error);
@@ -137,9 +138,9 @@ const getRoutine = async (req: Request, res: Response) => {
         res.status(200).json(data);
         let automation = {};
         automation = data[0].json;
-        console.log(automation);
+        //console.log(automation);
         const variableType = typeof automation;
-        console.log(variableType);
+        //console.log(variableType);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
@@ -149,18 +150,19 @@ const getRoutine = async (req: Request, res: Response) => {
 const getRoutines = async (req: Request, res: Response) => {
     const profile_id = req.query.profile_id;
     try {
-        const { data, error } = await supabaseClient.from('routine').select('routine_name, json').eq('profile_id', profile_id);
+        const { data, error } = await supabaseClient.from('routine').select('id, routine_name, json').eq('profile_id', profile_id);
         let routines: Routine[] = [];
 
         data?.forEach((x) => {
-            let routine = {
+            let routine: Routine = {
+                id: x.id,
                 routineName: x.routine_name,
                 routineJSON: x.json,
             };
 
             routines = [...routines, routine];
         });
-        console.log(data);
+        //console.log(data);
         res.status(200).json(routines);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
