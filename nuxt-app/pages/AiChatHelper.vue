@@ -36,6 +36,7 @@ const userID = useSupabaseUser().value?.id;
 const isMessagesLoading = ref(false);
 
 const homeAssistantError: Ref<HomeAssistantReply> = ref({ error: false, message: '' });
+const suggestions: string[] = ['Hi, can you help me with green automation?', 'Can you generate routines based on my appliances?'];
 
 // helper function to scroll at the end of the chat
 const scrollToEnd = () => {
@@ -175,6 +176,68 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
         }, 100);
     }
 };
+
+const sendDefaultMessage = async (defaultMessage: string) => {
+    //reset chat visuals
+    isMessagesLoading.value = true;
+    cleanWarning();
+    console.log('defualt is: ', defaultMessage);
+
+    if (userID) {
+        const contentToSend = defaultMessage;
+        if (messages.value !== null) {
+            const userMessage = { id: 1, profile_id: userID, message: defaultMessage, is_chatgpt: false, is_routine: false, timestamp: new Date().toString() };
+            messages.value.push(userMessage);
+        }
+
+        setTimeout(() => {
+            scrollToEnd();
+        }, 100);
+
+        newMessage.value = '';
+        const { data: responseContent, error } = await useFetch<ResponseBody>(config.public.baseURL + '/api/openai/openaiHandler', {
+            method: 'POST',
+            query: {
+                profile_id: userID,
+            },
+            body: {
+                //TODO: remeber that for auth is called uid, need to choose the same name also for other backend stuff
+                message: contentToSend,
+            },
+        });
+
+        if (error.value !== null) {
+            console.log(error.value);
+        }
+
+        if (messages.value !== null && responseContent.value !== null) {
+            const responseMessage: Message = {
+                id: 2,
+                profile_id: userID,
+                message: responseContent.value.message,
+                is_chatgpt: true,
+                is_routine: responseContent.value.is_routine,
+                timestamp: new Date().toString(),
+            };
+
+            // if the response is a routine set the routine fields
+            if (responseContent.value.is_routine) {
+                console.log('is a routine');
+                console.log('message: ', responseMessage);
+                responseMessage.routine = responseContent.value.routine;
+                console.log(responseContent.value);
+                console.log(responseMessage.routine);
+            }
+
+            messages.value.push(responseMessage);
+        }
+
+        setTimeout(() => {
+            scrollToEnd();
+        }, 100);
+        isMessagesLoading.value = false;
+    }
+};
 </script>
 
 <template>
@@ -195,6 +258,9 @@ const saveRoutine = async (routineName: string, routineJSON: string) => {
             </div>
             <MessageLoader v-if="pending || isMessagesLoading" />
         </div>
+
+        <SuggestionContainer :suggestions="suggestions" @func="sendDefaultMessage" />
+
         <div class="user-textarea-container">
             <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage" @keydown.enter.prevent="sendMessage"> </textarea>
             <button class="send-button" @click.prevent="sendMessage">

@@ -16,12 +16,13 @@ const changeRoom = (room: string) => {
 };
 
 // GET: retrieve chat on page enter
-const { data, error, pending } = await useLazyFetch<APIBody>(config.public.baseURL + '/api/appliance/getApplianceOfUser', {
+const { data, error } = await useLazyFetch<APIBody>(config.public.baseURL + '/api/appliance/getApplianceOfUser', {
     query: {
         profile_id: userID,
     },
 });
 
+// filter the appliances by room
 const filteredAppliances = computed(() => {
     if (selectedRoom.value === '' || selectedRoom.value === 'All rooms') {
         return data.value?.appliances;
@@ -43,6 +44,7 @@ const filteredAppliances = computed(() => {
     return arr;
 });
 
+// add the all rooms option
 const rooms = computed(() => {
     if (!data.value?.rooms.includes('All rooms')) {
         data.value?.rooms.push('All rooms');
