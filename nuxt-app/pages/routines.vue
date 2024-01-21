@@ -15,6 +15,25 @@ const {
     },
 });
 
+const deleteRoutine = async (routineID: number) => {
+    const { data, error } = await useFetch<Routine>(config.public.baseURL + `/api/routine/deleteRoutine/`, {
+        method: 'DELETE',
+        query: {
+            id: routineID,
+            profile_id: userID,
+        },
+    });
+    if (!error.value) {
+        console.log(data);
+    }
+
+    const index = routines.value?.findIndex((routine) => routine.id === routineID);
+
+    if (index !== -1 && index !== undefined) {
+        routines.value?.splice(index, 1);
+    }
+};
+
 console.log(routines.value);
 </script>
 
@@ -22,7 +41,7 @@ console.log(routines.value);
     <Header title="Routines" :is-action-button-enabled="false" />
     <div class="main">
         <div v-for="routine in routines">
-            <RoutineElement :routine="routine" />
+            <RoutineElement :routine="routine" @func="deleteRoutine(routine.id)" />
         </div>
     </div>
 </template>
