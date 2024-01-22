@@ -11,7 +11,7 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
 //GET: requires the user unique id and returns the associated username
 const getUsername = async (req: Request, res: Response) => {
-    const id = req.query.id;
+    const id = req.query.profile_id;
     const validation = z.string();
     try {
         validation.parse(id);
@@ -19,22 +19,22 @@ const getUsername = async (req: Request, res: Response) => {
         res.status(400).json({ error: (error as Error).message });
         return;
     }
-    
+
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('username').eq('id', id).single();
+        const { data, error } = await supabaseClient.from('profiles').select('username').eq('id', id).single();
 
         if (error) {
             throw new Error(error.message);
         }
-        res.status(200).json(data);
+        res.status(200).json(data.username);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //GET: return Home Assistant Key given unique user's id
 const getHomeAssistantKey = async (req: Request, res: Response) => {
-    const id = req.query.id;
+    const id = req.query.profile_id;
     const validation = z.string();
     try {
         validation.parse(id);
@@ -44,20 +44,20 @@ const getHomeAssistantKey = async (req: Request, res: Response) => {
     }
 
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_key').eq('id', id);
+        const { data, error } = await supabaseClient.from('profiles').select('homeassistant_key').eq('id', id).single();
 
         if (error) {
             throw new Error(error.message);
         }
-        res.status(200).json(data);
+        res.status(200).json(data.homeassistant_key);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //GET: return Home Assistant url given unique user's id
 const getHomeAssistantUrl = async (req: Request, res: Response) => {
-    const id = req.query.id;
+    const id = req.query.profile_id;
     const validation = z.string();
     try {
         validation.parse(id);
@@ -67,32 +67,28 @@ const getHomeAssistantUrl = async (req: Request, res: Response) => {
     }
 
     try {
-        const { data, error }: { data: any; error: any } = await supabaseClient.from('profiles').select('homeassistant_url').eq('id', id);
+        const { data, error } = await supabaseClient.from('profiles').select('homeassistant_url').eq('id', id).single();
 
         if (error) {
             throw new Error(error.message);
         }
-        res.status(200).json(data);
+        res.status(200).json(data.homeassistant_url);
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
 //PUT :update profile data, non specified parameters stay unchanged
 const updateProfile = async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = req.params.profile_id;
     const username = req.body.username;
     const key = req.body.key;
     const url = req.body.url;
 
-    const validationID = z.string();
-
-    try {
-        validationID.parse(id);
-    } catch (error) {
-        res.status(400).json({ error: (error as Error).message });
-        return;
-    }
+    console.log(typeof id);
+    console.log(typeof username);
+    console.log(typeof key);
+    console.log(typeof url);
 
     const validationData = z.object({
         username: z.string(),
@@ -103,8 +99,8 @@ const updateProfile = async (req: Request, res: Response) => {
     const dataToUpdate = {
         username: username,
         homeassistant_key: key,
-        homeassistant_url: url
-    }
+        homeassistant_url: url,
+    };
 
     try {
         validationData.parse(dataToUpdate);
@@ -123,9 +119,6 @@ const updateProfile = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: (error as Error).message });
     }
-}
+};
 
-
-
-
-export { getUsername, getHomeAssistantKey, updateProfile, getHomeAssistantUrl};
+export { getUsername, getHomeAssistantKey, updateProfile, getHomeAssistantUrl };
