@@ -1,16 +1,18 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="new-appliance-card-container">
-        <div class="new-appliance-add-icon">
-            <div class="icon-wrapper">
-                <div class="icon-bg">
-                    <Icon name="mingcute:add-fill" size="2rem" />
+    <NuxtLink class="link" to="/appliances/addAppliance">
+        <div class="new-appliance-card-container">
+            <div class="new-appliance-add-icon">
+                <div class="icon-wrapper">
+                    <div class="icon-bg">
+                        <Icon name="mingcute:add-fill" size="2rem" />
+                    </div>
                 </div>
+                <p>Add new appliance</p>
             </div>
-            <p>Add new appliance</p>
         </div>
-    </div>
+    </NuxtLink>
 </template>
 
 <style scoped>
@@ -40,10 +42,12 @@
             color: var(--white-1);
         }
     }
+}
 
-    p {
-        font-weight: 500;
-    }
+.link {
+    text-decoration: none;
+    font-weight: 500;
+    color: var(--black-1);
 }
 
 @media screen and (width < 767px) {
