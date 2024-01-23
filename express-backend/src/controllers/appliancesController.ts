@@ -70,16 +70,20 @@ const deleteAppliance = async (req: Request, res: Response) => {
 
 //POST: insert a new appliance, requires appliance_type, appliance_name, profile_id and returns the inserted data
 const insertAppliance = async (req: Request, res: Response) => {
-    const appliance_type = req.body.appliance_type;
-    const appliance_name = req.body.appliance_name;
-    const profile_id = req.body.profile_id;
-    const room = req.body.room;
+    const profile_id = req.query.profile_id;
+    const appliance_type: string = req.body.appliance_type;
+    const appliance_name: string = req.body.appliance_name;
+    const room: string = req.body.room;
+    const avg_consumption: number = req.body.avg_consumption;
+    const brand: string = req.body.brand;
 
     const validation = z.object({
         appliance_type: z.string(),
         appliance_name: z.string(),
         profile_id: z.string(),
         room: z.string(),
+        brand: z.string().optional(),
+        avg_consumption: z.number().optional(),
     });
 
     const dataToInsert = {
@@ -87,22 +91,28 @@ const insertAppliance = async (req: Request, res: Response) => {
         appliance_name: appliance_name,
         profile_id: profile_id,
         room: room,
+        avg_consumption: avg_consumption,
+        brand: brand,
     };
+
+    console.log(dataToInsert);
+
+    try {
+        validation.parse(dataToInsert);
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ error: (error as Error).message });
+        return;
+    }
 
     let appliance_type_num;
     try {
         appliance_type_num = await supabaseClient.from('appliance_type').select('id').eq('type', appliance_type).single();
     } catch (error) {
+        console.log('error');
         res.status(500).json({ error: (error as Error).message });
     }
     if (appliance_type_num) dataToInsert.appliance_type = appliance_type_num.data?.id;
-
-    try {
-        validation.parse(dataToInsert);
-    } catch (error) {
-        res.status(400).json({ error: (error as Error).message });
-        return;
-    }
 
     try {
         const tableName = 'appliance';
