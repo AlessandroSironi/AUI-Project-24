@@ -1,4 +1,11 @@
 <script setup lang="ts">
+interface Props {
+    label: string;
+    icon?: string;
+}
+
+const { label, icon } = defineProps<Props>();
+
 // expect an emitter function
 const emit = defineEmits<{
     (e: 'func'): void;
@@ -7,8 +14,8 @@ const emit = defineEmits<{
 
 <template>
     <button class="routine-button" @click="$emit('func')">
-        <p>Save Routine</p>
-        <Icon name="fluent:send-16-filled" class="save-icon" size="1.2rem" />
+        <p>{{ label }}</p>
+        <Icon :name="icon" class="save-icon" size="1.2rem" v-if="icon" />
     </button>
 </template>
 

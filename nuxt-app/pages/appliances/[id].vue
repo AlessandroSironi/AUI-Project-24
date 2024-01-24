@@ -23,19 +23,14 @@ console.log(appliance);
 <template>
     <Header title="Edit Appliance" :is-action-button-enabled="false" />
     <div>
-        <p class="info-text"> Edit the information for {{ appliance?.appliance_name }} </p>
         <div v-if="pending">...</div>
         <EditAppliance v-else v-if="appliance" class="edit-appliance" :appliance="appliance" />
     </div>
 </template>
 
 <style scoped>
-.info-text {
-    padding: 1rem;
-    width: auto;
-    margin: 0 auto;
-}
 .edit-appliance {
+    margin-top: 2rem;
     display: flex;
     align-items: center;
     align-content: center;

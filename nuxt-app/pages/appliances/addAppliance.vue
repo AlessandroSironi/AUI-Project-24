@@ -26,6 +26,7 @@ const addNewAppliance = async () => {
     });
     if (!error.value) {
         console.log(data);
+        useRouter().push('/appliances');
     }
 };
 </script>
@@ -37,11 +38,11 @@ const addNewAppliance = async () => {
             <div class="form">
                 <div class="inputs">
                     <div class="input-container">
-                        <span class="input-label">Product Brand</span>
+                        <span class="input-label">Product Brand (*)</span>
                         <input type="text" v-model="brand" />
                     </div>
                     <div class="input-container">
-                        <span class="input-label">Product Name</span>
+                        <span class="input-label">Product Name (*)</span>
                         <input type="text" v-model="appliance_name" />
                     </div>
                     <div class="input-container">
@@ -49,7 +50,7 @@ const addNewAppliance = async () => {
                         <input type="number" v-model="avg_consumption" />
                     </div>
                     <div class="input-container">
-                        <span class="input-label">Appliance Type</span>
+                        <span class="input-label">Appliance Type (*)</span>
                         <input type="text" v-model="appliance_type" />
                     </div>
                     <div class="input-container">

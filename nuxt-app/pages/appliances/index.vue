@@ -49,6 +49,8 @@ const rooms = computed(() => {
     if (!data.value?.rooms.includes('All rooms')) {
         data.value?.rooms.push('All rooms');
     }
+    if (data.value?.rooms.includes('')) data.value.rooms = data.value.rooms.filter((x) => x !== '');
+
     return data.value?.rooms;
 });
 </script>
