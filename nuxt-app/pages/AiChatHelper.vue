@@ -36,7 +36,7 @@ const userID = useSupabaseUser().value?.id;
 const isMessagesLoading = ref(false);
 
 const homeAssistantError: Ref<HomeAssistantReply> = ref({ error: false, message: '' });
-const suggestions: string[] = ['Hi, can you help me with green automation?', 'Can you generate routines based on my appliances?'];
+const suggestions: string[] = ['Hi, can you help me be more environmental friendly?', 'Can you generate a routine based on one of my appliances?'];
 
 // helper function to scroll at the end of the chat
 const scrollToEnd = () => {
@@ -248,8 +248,9 @@ const sendDefaultMessage = async (defaultMessage: string) => {
                 <div class="message">
                     <ChatBubble :messageContent="message.message" :is-from-user="!message.is_chatgpt" :date="useDateFormatter(new Date(message.timestamp), DateType['message date (weekday hh:mm)'])" />
                 </div>
-                <div class="message-buttons">
-                    <RoutineButton class="routine-button-wrapper" v-if="message.is_routine && message.routine !== undefined" @func="saveRoutine(message.routine?.routineName, message.routine?.routineJSON)" />
+                <div class="message-buttons" v-if="message.is_routine && message.routine !== undefined">
+                    <RoutineButton label="Save Routine" icon="fluent:send-16-filled" class="routine-button-wrapper" @func="saveRoutine(message.routine?.routineName, message.routine?.routineJSON)" />
+                    <NuxtLink class="button-link" to="/routines"><RoutineButton label="Inspect Code" icon="mingcute:code-fill" /></NuxtLink>
                 </div>
             </div>
             <div class="homeassistant-response" :class="homeAssistantError.error ? 'response-error' : 'response-ok'" v-if="homeAssistantError.message !== ''">
@@ -291,7 +292,13 @@ const sendDefaultMessage = async (defaultMessage: string) => {
 
 .message-buttons {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
+}
+
+.button-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
 .routine-button-wrapper {
