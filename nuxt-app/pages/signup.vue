@@ -16,6 +16,8 @@ const signUp = async () => {
     if (error) {
         alert('invalid credentials while registering');
         console.log(error);
+    } else {
+        navigateTo('/login');
     }
 };
 </script>
@@ -32,7 +34,6 @@ const signUp = async () => {
 </template>
 
 <style scoped>
-
 /* Style the body to center the form container */
 .body-container {
     display: flex;
@@ -72,8 +73,8 @@ form {
     font-size: 0.9rem;
 }
 
-input[type="email"],
-input[type="password"] {
+input[type='email'],
+input[type='password'] {
     padding: 10px;
     margin-bottom: 5px;
     border: 1px solid #ddd; /* Light grey border */
@@ -103,5 +104,4 @@ input[type="password"] {
     background-color: var(--white-2);
     color: var(--black-1);
 }
-
 </style>
