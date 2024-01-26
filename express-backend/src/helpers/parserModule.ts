@@ -1,14 +1,19 @@
 export function checkIfRoutine(chatgptAnswer: string): boolean {
-    if(chatgptAnswer.includes('```')) {
-        const routine = extractJSONString(chatgptAnswer);
-        const jsonData = JSON.parse(routine);
-        if (jsonData && jsonData.alias && jsonData.trigger && jsonData.action) return true;
-        else return false;
-    }
-    else return false;
+    if (chatgptAnswer.includes('```')) {
+        let routine = extractJSONString(chatgptAnswer);
+        routine = cleanAutomationJSON(routine);
+        try {
+            const jsonData = JSON.parse(routine);
+            if (jsonData && jsonData.alias && jsonData.trigger && jsonData.action) return true;
+            else return false;
+        } catch (error) {
+            console.log('Error while parsing JSON: ', error);
+            return false;
+        }
+    } else return false;
 }
 
-// given the chat gpt answer retrieve the json code 
+// given the chat gpt answer retrieve the json code
 export function extractJSONString(chatgptAnswer: string): string {
     const match = chatgptAnswer.match(/```([\s\S]*?)```/);
 
@@ -20,7 +25,7 @@ export function extractJSONString(chatgptAnswer: string): string {
 }
 
 export function extractJSONName(chatgptAnswer: string): string {
-    const pattern = /"alias":\s*"([^"]*)"/;  
+    const pattern = /"alias":\s*"([^"]*)"/;
 
     const match = chatgptAnswer.match(pattern);
 
@@ -36,7 +41,7 @@ export function extractJSONName(chatgptAnswer: string): string {
 export function cleanAutomationJSON(automation: string): string {
     const match = automation.match(/\{[^]*\}/);
 
-    console.log(match);
+    console.log('parsing automation, match is:', match);
 
     if (!match) {
         return automation;
