@@ -238,10 +238,15 @@ const sendDefaultMessage = async (defaultMessage: string) => {
         isMessagesLoading.value = false;
     }
 };
+
+const textarea = ref();
+const focusTextarea = () => {
+    textarea.value.focus();
+};
 </script>
 
 <template>
-    <Header title="EcoMate" :is-action-button-enabled="true" />
+    <Header title="EcoMate" :is-action-button-enabled="true" @func="focusTextarea" />
     <div class="main">
         <div class="chat-container" id="chatBlock">
             <div class="message-wrapper" v-for="message in messages">
@@ -263,7 +268,7 @@ const sendDefaultMessage = async (defaultMessage: string) => {
         <SuggestionContainer :suggestions="suggestions" @func="sendDefaultMessage" />
 
         <div class="user-textarea-container">
-            <textarea class="user-textarea" cols="10" rows="1" v-model="newMessage" @keydown.enter.prevent="sendMessage"> </textarea>
+            <textarea class="user-textarea" ref="textarea" cols="10" rows="1" v-model="newMessage" @keydown.enter.prevent="sendMessage"> </textarea>
             <button class="send-button" @click.prevent="sendMessage">
                 <Icon name="material-symbols-light:send" color="white" size="2rem" />
             </button>

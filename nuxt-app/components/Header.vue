@@ -15,6 +15,10 @@ const { title } = defineProps<Props>();
 const navbarStore = useNavbarStore();
 const { toggleNavbar } = navbarStore;
 const { isNavbarVisible } = storeToRefs(navbarStore);
+
+const emit = defineEmits<{
+    (e: 'func'): void;
+}>();
 </script>
 
 <template>
@@ -25,7 +29,7 @@ const { isNavbarVisible } = storeToRefs(navbarStore);
         <div class="header-title">
             <h1 class="header-title-text">{{ title }}</h1>
         </div>
-        <div class="header-action-button" :class="isActionButtonEnabled ? '' : 'header-action-button-invisible'"><Icon name="icon-park-outline:add" size="1.8rem" /></div>
+        <div @click="emit('func')" class="header-action-button" :class="isActionButtonEnabled ? '' : 'header-action-button-invisible'"><Icon name="icon-park-outline:add" size="1.8rem" /></div>
     </div>
 </template>
 
