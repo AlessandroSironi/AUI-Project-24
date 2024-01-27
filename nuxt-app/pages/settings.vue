@@ -37,7 +37,7 @@ const updateSettings = async () => {
 </script>
 
 <template>
-    <Header title="Settings" :is-action-button-enabled="true" />
+    <Header title="Settings" :is-action-button-enabled="false" />
     <div class="main">
         <div class="form">
             <div class="input-container">
