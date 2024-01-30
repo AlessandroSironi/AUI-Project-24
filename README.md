@@ -33,9 +33,9 @@ Below are all the necessary steps to install and test this application on a loca
 4. Enter the necessary information in the `.env` file located inside express-backend.
 5. Start the server in the following way:
    `npm install -g nodemon` to install nodemon service,
-   `npm start` to start the backend.
+   `npm run dev` to start the backend.
 6. Enter the nuxt-app folder and install the necessary dependencies by copying and executing the following command: `npm i`.
-7. Start the client in the following way:`npm start`.
+7. Start the client in the following way:`npm run dev`.
 8. Enter the necessary information in the `.env` file located inside nuxt-app.
 
 At this point, the application should be active. The users, after creating an account, are invited to enter their settings on the settings page, and for any doubts, they can consult the "Update and FAQs" page within the application itself.
