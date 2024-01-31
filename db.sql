@@ -32,8 +32,8 @@ create table if not exists
     id BIGSERIAL not null,
     profile_id uuid not null,
     appliance_name varchar(100) not null,
-    product_name varchar(100),
-    power_consumption float,
+    brand varchar(100),
+    avg_consumption float,
     appliance_type int not null,
     room varchar(100),
     primary key (id),
@@ -59,52 +59,28 @@ INSERT INTO appliance_type (id, type) VALUES
 
 
 
-/* /* Create user table */
-/* CREATE TABLE IF NOT EXISTS user (
-  id int NOT NULL SERIAL,
-  name varchar(100) NOT NULL,
-  email varchar(100) NOT NULL,
-  ifttt_key varchar(255) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY email (email)
-); */
+-- Trigger for linking authentication.
+-- This trigger automatically creates a profile entry when a new user signs up via Supabase Auth.
 
-/* Create message table */
-CREATE TABLE IF NOT EXISTS message (
-  id int NOT NULL SERIAL,
-  profile_id int NOT NULL,
-  message varchar(255) NOT NULL,
-  is_chatgpt boolean NOT NULL,
-  is_routine boolean NOT NULL,
-  timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  FOREIGN KEY (profile_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE
+-- Create a table for public profiles
+create table profiles (
+  id uuid references auth.users on delete cascade not null primary key,
+  username text unique,
+  homeassistant_key varchar(255),
+  homeassistant_url varchar(255)
+
+  constraint username_length check (char_length(username) >= 3)
 );
 
-/* Create routine table */
-CREATE TABLE IF NOT EXISTS routine (
-    id int NOT NULL SERIAL,
-    profile_id int NOT NULL,
-    routine_name varchar(100) NOT NULL,
-    json JSON, 
-    PRIMARY KEY (id),
-    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-/* Create appliance type table */
-CREATE TABLE IF NOT EXISTS appliance_type (
-    id int NOT NULL SERIAL,
-    appliance_type varchar(100) NOT NULL,
-    PRIMARY KEY (id)
-);
-
-/* Create appliance table */
-CREATE TABLE IF NOT EXISTS appliance (
-    id int NOT NULL SERIAL,
-    profile_id int NOT NULL,
-    appliance_name varchar(100) NOT NULL,
-    appliance_type varchar(100) NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (appliance_type) REFERENCES applicance_type(appliance_type) ON UPDATE CASCADE ON DELETE CASCADE
-); */
+-- This trigger automatically creates a profile entry when a new user signs up via Supabase Auth.
+create function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id)
+  values (new.id);
+  return new;
+end;
+$$ language plpgsql security definer;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
