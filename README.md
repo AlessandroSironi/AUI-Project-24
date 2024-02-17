@@ -2,6 +2,8 @@
 
 Repo for the Project of the course "Advanced User Interfaces" @ PoliMi
 
+Grade: 30L
+
 ## Project overview and goals
 
 The project’s goal was to develop a user-friendly, efficient, and innovative solution for automating routine tasks in smart homes emphasizing green energy utilization. The methodology involved a user-centric approach in designing the interface and seamless integration with HomeAssistant for robust performance and the usage of GPT 3.5 as a powerful generative AI.
