@@ -4,7 +4,8 @@ Repo for the Project of the course "Advanced User Interfaces" @ PoliMi
 
 Grade: 30L
 
-https://github.com/AlessandroSironi/AUI-Project-24/assets/100214750/37274377-ed4b-4759-b882-74b382cba09d
+https://youtu.be/dlYRBJ3FIv8
+<!-- https://github.com/AlessandroSironi/AUI-Project-24/assets/100214750/37274377-ed4b-4759-b882-74b382cba09d -->
 
 
 ## Project overview and goals
