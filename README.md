@@ -4,7 +4,9 @@ Repo for the Project of the course "Advanced User Interfaces" @ PoliMi
 
 Grade: 30L
 
-https://youtu.be/dlYRBJ3FIv8
+<!-- https://youtu.be/dlYRBJ3FIv8 -->
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dlYRBJ3FIv8?si=q6WljBk0pILNzHMZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <!-- https://github.com/AlessandroSironi/AUI-Project-24/assets/100214750/37274377-ed4b-4759-b882-74b382cba09d -->
 
 
